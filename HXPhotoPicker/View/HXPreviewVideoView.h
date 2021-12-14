@@ -2,8 +2,8 @@
 //  HXPreviewVideoView.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2019/11/15.
-//  Copyright © 2019 Silence. All rights reserved.
+//  Created by 洪欣 on 2019/11/15.
+//  Copyright © 2019 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -38,7 +38,7 @@ typedef NS_ENUM(NSUInteger, HXPreviewVideoSliderType) {
 @property (copy, nonatomic) void (^ changeValue)(CGFloat value ,BOOL animaiton);
 @property (copy, nonatomic) void (^ gotVideoCurrentTime)(NSTimeInterval currentTime);
 @property (copy, nonatomic) void (^ playBtnDidClick)(BOOL isPlay);
-@property (copy, nonatomic) void (^ changeSliderHidden)(BOOL isHidden);
+@property (copy, nonatomic) void (^ playFinshed)(void);//视频播放完成回调设置底部播放按钮暂停
 - (void)didPlayBtnClickWithSelected:(BOOL)isSelected;
 - (void)changePlayerTimeWithValue:(CGFloat)value type:(HXPreviewVideoSliderType)type;
 

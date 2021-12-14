@@ -2,8 +2,8 @@
 //  HXPhotoTools.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 17/2/8.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 17/2/8.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -57,7 +57,6 @@
 
 /// 获取当前相册权限类型
 + (PHAuthorizationStatus)authorizationStatus;
-+ (BOOL)authorizationStatusIsLimited;
 
 /// 显示未授权的弹窗
 + (void)showNoAuthorizedAlertWithViewController:(UIViewController * _Nullable)viewController
@@ -68,16 +67,16 @@
 /// 显示因未授权无法使用相机的alert
 /// @param vc 弹出的控制器
 + (void)showUnusableCameraAlert:(UIViewController * _Nullable)vc;
-+ (void)openSetting;
+
 /// 导出裁剪的视频
 /// @param asset 视频AVAsset
 /// @param timeRange 裁剪时间区域
-+ (void)exportEditVideoForAVAsset:(AVAsset *_Nullable)asset
+/// @param presetName 导出的视频质量
++ (void)exportEditVideoForAVAsset:(AVAsset * _Nullable)asset
                         timeRange:(CMTimeRange)timeRange
-                        exportPreset:(HXVideoEditorExportPreset)exportPreset
-                        videoQuality:(NSInteger)videoQuality
-                          success:(void (^_Nullable)(NSURL *_Nullable))success
-                           failed:(void (^_Nullable)(NSError *_Nullable))failed;
+                       presetName:(NSString * _Nullable)presetName
+                          success:(void (^ _Nullable)(NSURL * _Nullable videoURL))success
+                           failed:(void (^ _Nullable)(NSError * _Nullable error))failed;
 
 /// 转换视频时长为字符串 mm:ss / HH:mm:ss
 + (NSString * _Nullable)transformVideoTimeToString:(NSTimeInterval)duration;
@@ -90,10 +89,7 @@
 
 + (BOOL)platform;
 + (BOOL)isIphone6;
-+ (BOOL)isIphone12Mini;
 
-/// 判断RTL语言
-+ (BOOL)isRTLLanguage;
 
 /// 判断网络地址是否在本地存在
 /// 如果文件夹不存在则会创建文件夹
@@ -119,9 +115,6 @@
                               header:(void (^ _Nullable)(AVAssetWriter * _Nullable writer, AVAssetReader * _Nullable videoReader, AVAssetReader * _Nullable audioReader))header
                           completion:(void (^ _Nullable)(BOOL success))completion;
 
-+ (NSInteger)exportSessionFileLengthLimitWithSeconds:(CGFloat)seconds
-                                        exportPreset:(HXVideoEditorExportPreset)exportPreset
-                                        videoQuality:(NSInteger)videoQuality;
 
 
 #pragma mark - < 获取本地文件大小 >

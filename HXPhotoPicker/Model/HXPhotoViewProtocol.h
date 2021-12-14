@@ -2,8 +2,8 @@
 //  HXPhotoViewProtocol.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2020/8/1.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by 洪欣 on 2020/8/1.
+//  Copyright © 2020 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -170,7 +170,6 @@ typedef void (^HXPhotoViewLongGestureRecognizerEndedBlock)(UILongPressGestureRec
 - (CGFloat)photoViewHeight:(HXPhotoView *)photoView;
 
 /// 自定义每个item的大小，实现此代码必须将 HXPhotoViewCustomItemSize 此宏的值修改为 1
-/// 如果为pod导入的话，请使用  pod 'HXPhotoPicker/CustomItem'
 /// 并且必须实现 - (CGFloat)photoViewHeight:(HXPhotoView *)photoView 此代理返回HXPhotoView的高度，如果不实现则HXPhotoView的高度为0
 /// @param isAddItem 是否是添加按钮的item
 - (CGSize)collectionView:(UICollectionView *)collectionView

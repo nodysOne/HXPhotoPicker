@@ -2,8 +2,8 @@
 //  HXPhotoViewTransition.m
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2017/10/27.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 2017/10/27.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import "HXPhotoViewTransition.h"
@@ -11,12 +11,8 @@
 #import "HXPhotoPreviewViewController.h"
 #import "HXPhotoPreviewBottomView.h"
 #import "HXPhotoEdit.h"
-#import "HXAssetManager.h"
-
 @interface HXPhotoViewTransition ()
 @property (assign, nonatomic) HXPhotoViewTransitionType type;
-@property (strong, nonatomic) UIImageView *imageView;
-@property (assign, nonatomic) PHImageRequestID requestID;
 @end
 
 @implementation HXPhotoViewTransition
@@ -47,21 +43,11 @@
     HXPhotoViewController *fromVC = (HXPhotoViewController *)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
     HXPhotoPreviewViewController *toVC = (HXPhotoPreviewViewController *)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
     HXPhotoModel *model = [toVC.modelArray objectAtIndex:toVC.currentModelIndex];
-    UIImage *image = model.thumbPhoto ?: model.previewPhoto;;
+    UIImage *image;
     if (model.photoEdit) {
         image = model.photoEdit.editPreviewImage;
-    }else if (model.asset){
+    }else {
         image = model.thumbPhoto ?: model.previewPhoto;
-        PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
-        self.requestID = [HXAssetManager requestImageDataForAsset:model.asset options:options completion:^(NSData * _Nonnull imageData, UIImageOrientation orientation, NSDictionary<NSString *,id> * _Nonnull info) {
-            if (imageData) {
-                UIImage *image = [UIImage imageWithData:imageData];
-                if (orientation != UIImageOrientationUp) {
-                    image = [image hx_normalizedImage];
-                }
-                self.imageView.image = image;
-            }
-        }];
     }
     [self pushAnim:transitionContext image:image model:model fromVC:fromVC toVC:toVC];
 }
@@ -78,18 +64,18 @@
     CGFloat imgHeight = model.endImageSize.height;
     CGFloat width = [UIScreen mainScreen].bounds.size.width;
     CGFloat height = [UIScreen mainScreen].bounds.size.height; 
-    self.imageView = [[UIImageView alloc] initWithImage:image];
+    UIImageView *tempView = [[UIImageView alloc] initWithImage:image];
     UIView *tempBgView = [[UIView alloc] initWithFrame:containerView.bounds];
     tempBgView.backgroundColor = [HXPhotoCommon photoCommon].isDark ? [[UIColor blackColor] colorWithAlphaComponent:0] : [toVC.manager.configuration.previewPhotoViewBgColor colorWithAlphaComponent:0];
-    self.imageView.clipsToBounds = YES;
-    self.imageView.contentMode = UIViewContentModeScaleAspectFill;
+    tempView.clipsToBounds = YES;
+    tempView.contentMode = UIViewContentModeScaleAspectFill;
     if (fromCell) {
-        self.imageView.frame = [fromCell.imageView convertRect:fromCell.imageView.bounds toView: containerView];
+        tempView.frame = [fromCell.imageView convertRect:fromCell.imageView.bounds toView: containerView];
     }else {
-        self.imageView.hx_size = CGSizeMake(self.imageView.hx_w * 1.5, self.imageView.hx_h * 1.5);
-        self.imageView.center = CGPointMake(width / 2, height / 2);
+        tempView.hx_size = CGSizeMake(tempView.hx_w * 1.5, tempView.hx_h * 1.5);
+        tempView.center = CGPointMake(width / 2, height / 2); 
     }
-    [tempBgView addSubview:self.imageView];
+    [tempBgView addSubview:tempView];
     [fromVC.view insertSubview:tempBgView belowSubview:fromVC.bottomView];
     [containerView addSubview:fromVC.view];
     [containerView addSubview:toVC.view];
@@ -97,7 +83,7 @@
     toVC.view.backgroundColor = [UIColor clearColor];
     toVC.bottomView.alpha = 0;
     fromCell.hidden = YES;
-    
+    [toVC.navigationController setNavigationBarHidden:NO];
     toVC.navigationController.navigationBar.userInteractionEnabled = NO;
     UIViewAnimationOptions option = UIViewAnimationOptionLayoutSubviews;
     
@@ -107,19 +93,18 @@
     
     [UIView animateWithDuration:[self transitionDuration:transitionContext] delay:0 usingSpringWithDamping:0.8f initialSpringVelocity:0 options:option animations:^{
         if (imgHeight <= height) {
-            self.imageView.frame = CGRectMake((width - imgWidht) / 2, (height - imgHeight) / 2, imgWidht, imgHeight);
+            tempView.frame = CGRectMake((width - imgWidht) / 2, (height - imgHeight) / 2, imgWidht, imgHeight);
         }else {
-            self.imageView.frame = CGRectMake(0, 0, imgWidht, imgHeight);
+            tempView.frame = CGRectMake(0, 0, imgWidht, imgHeight);
         }
         toVC.bottomView.alpha = 1;
     } completion:^(BOOL finished) {
         fromCell.hidden = NO;
-        [[PHImageManager defaultManager] cancelImageRequest:self.requestID];
-        [toVC setCellImage:self.imageView.image];
+        
         toVC.view.backgroundColor = [HXPhotoCommon photoCommon].isDark ? [UIColor blackColor] : toVC.manager.configuration.previewPhotoViewBgColor;
         toVC.collectionView.hidden = NO;
         [tempBgView removeFromSuperview];
-        [self.imageView removeFromSuperview];
+        [tempView removeFromSuperview];
         toVC.navigationController.navigationBar.userInteractionEnabled = YES;
         [transitionContext completeTransition:YES];
     }];
@@ -232,4 +217,6 @@
         return fromVC.manager.configuration.popTransitionDuration;
     }
 }
+
+
 @end

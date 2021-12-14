@@ -2,8 +2,8 @@
 //  HXPhotoView.m
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 17/2/17.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 17/2/17.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import "HXPhotoView.h"
@@ -54,6 +54,13 @@
         _dataList = [NSMutableArray array];
     }
     return _dataList;
+}
+- (HXPhotoSubViewCell *)addCell {
+    if (!_addCell) {
+        _addCell = [self.collectionView dequeueReusableCellWithReuseIdentifier:@"addCell" forIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+        _addCell.model = self.addModel;
+    }
+    return _addCell;
 }
 - (HXPhotoModel *)addModel {
     if (!_addModel) {
@@ -289,9 +296,7 @@
  刷新视图
  */
 - (void)refreshView {
-    if (!self.manager.configuration.singleSelected) {
-        [self setupDataWithAllList:self.manager.afterSelectedArray.copy photos:self.manager.afterSelectedPhotoArray.copy videos:self.manager.afterSelectedVideoArray.copy original:self.manager.afterOriginal];
-    }
+    [self setupDataWithAllList:self.manager.afterSelectedArray.copy photos:self.manager.afterSelectedPhotoArray.copy videos:self.manager.afterSelectedVideoArray.copy original:self.manager.afterOriginal];
 }
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return self.tempShowAddCell ? self.dataList.count + 1 : self.dataList.count;
@@ -387,7 +392,7 @@
         [[self hx_viewController] presentViewController:vc animated:YES completion:nil];
     }
 }
-#if HXPhotoViewCustomItemSize || HXPhotoViewCustomItemSizeEnable
+#if HXPhotoViewCustomItemSize
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     BOOL isAddItem = NO;
     if (self.tempShowAddCell && indexPath.item == self.dataList.count) {
@@ -430,7 +435,7 @@
     [self deleteModelWithIndex:index];
 }
 - (void)photoPreviewSelectLaterDidEditClick:(HXPhotoPreviewViewController *)previewController beforeModel:(HXPhotoModel *)beforeModel afterModel:(HXPhotoModel *)afterModel {
-    if (self.manager.configuration.useWxPhotoEdit && afterModel.subType == HXPhotoModelMediaSubTypePhoto) {
+    if (self.manager.configuration.useWxPhotoEdit) {
         [self.collectionView reloadData];
         [self dragCellCollectionViewCellEndMoving:self.collectionView];
         return;
@@ -645,13 +650,13 @@
     }
     if (model.subType == HXPhotoModelMediaSubTypePhoto) {
         if (self.manager.type == HXPhotoManagerSelectedTypeVideo) {
-            [[self hx_viewController].view hx_showImageHUDText:[NSBundle hx_localizedStringForKey:@"图片不能和视频同时选择"]];
+//            [[self hx_viewController].view hx_showImageHUDText:[NSBundle hx_localizedStringForKey:@"图片不能和视频同时选择"]];
             return;
         }
         // 当选择图片个数没有达到最大个数时就添加到选中数组中
         if ([self.manager afterSelectPhotoCountIsMaximum]) {
             NSInteger maxCount = self.manager.configuration.photoMaxNum > 0 ? self.manager.configuration.photoMaxNum : self.manager.configuration.maxNum;
-            [[self hx_viewController].view hx_showImageHUDText:[NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"最多只能选择%ld张图片"],maxCount]];
+            [[self hx_viewController].view hx_showImageHUDText:[NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"最多只能选择 %ld 张图片"],maxCount]];
             return;
         }
     }else if (model.subType == HXPhotoModelMediaSubTypeVideo) {
@@ -660,16 +665,16 @@
             return;
         }
         // 当选中视频个数没有达到最大个数时就添加到选中数组中 
-        if (round(model.videoDuration) < self.manager.configuration.videoMinimumSelectDuration) {
+        if (model.videoDuration < self.manager.configuration.videoMinimumSelectDuration) {
             
             [[self hx_viewController].view hx_showImageHUDText:[NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"视频少于%ld秒，无法选择"], self.manager.configuration.videoMinimumSelectDuration]];
             return;
-        }else if (round(model.videoDuration) >= self.manager.configuration.videoMaximumSelectDuration + 1) {
+        }else if (model.videoDuration >= self.manager.configuration.videoMaximumSelectDuration + 1) {
             [[self hx_viewController].view hx_showImageHUDText:[NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"视频大于%ld秒，无法选择"], self.manager.configuration.videoMaximumSelectDuration]];
             return;
         }else if ([self.manager afterSelectVideoCountIsMaximum]) {
             NSInteger maxCount = self.manager.configuration.videoMaxNum > 0 ? self.manager.configuration.videoMaxNum : self.manager.configuration.maxNum;
-            [[self hx_viewController].view hx_showImageHUDText:[NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"最多只能选择%ld个视频"],maxCount]];
+            [[self hx_viewController].view hx_showImageHUDText:[NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"最多只能选择 %ld 个视频"],maxCount]];
             return;
         }
     }
@@ -1010,15 +1015,11 @@
     if (itemW <= 0) {
         itemW = 100;
     }
-#if HXPhotoViewCustomItemSizeEnable
-    itemW = 100;
-#else
     if (!HXPhotoViewCustomItemSize) {
         self.flowLayout.itemSize = CGSizeMake(itemW, itemW);
     }else {
         itemW = 100;
     }
-#endif
 
     NSInteger dataCount = self.tempShowAddCell ? self.dataList.count + 1 : self.dataList.count;
     NSInteger numOfLinesNew = 0;

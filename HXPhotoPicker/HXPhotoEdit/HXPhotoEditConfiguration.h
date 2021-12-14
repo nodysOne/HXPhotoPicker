@@ -2,8 +2,8 @@
 //  HXPhotoEditConfiguration.h
 //  photoEditDemo
 //
-//  Created by Silence on 2020/7/6.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by 洪欣 on 2020/7/6.
+//  Copyright © 2020 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -35,10 +35,6 @@ typedef NS_ENUM(NSUInteger, HXPhotoEditAspectRatio) {
 /// 是否支持旋转
 /// 旋转之后会重置编辑的内容
 @property (assign, nonatomic) BOOL supportRotation;
-
-/// 不可旋转时支持的方向
-@property (assign, nonatomic) UIInterfaceOrientationMask supportedInterfaceOrientations;
-
 
 #pragma mark - < 画笔相关 >
 /// 画笔颜色数组
@@ -83,8 +79,6 @@ typedef NS_ENUM(NSUInteger, HXPhotoEditAspectRatio) {
 
 /// 圆形裁剪框，只要裁剪功能 并且 固定裁剪比例为 HXPhotoEditAspectRatioType_1x1 时有效
 @property (assign, nonatomic) BOOL isRoundCliping;
-
-@property (assign, nonatomic) CGSize clippingMinSize;
 @end
 
 NS_ASSUME_NONNULL_END

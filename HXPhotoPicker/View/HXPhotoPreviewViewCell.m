@@ -2,8 +2,8 @@
 //  HXPhotoPreviewViewCell.m
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2019/12/5.
-//  Copyright © 2019 Silence. All rights reserved.
+//  Created by 洪欣 on 2019/12/5.
+//  Copyright © 2019 洪欣. All rights reserved.
 //
 
 #import "HXPhotoPreviewViewCell.h"
@@ -22,8 +22,25 @@
     return self;
 }
 - (void)setup {
-    self.allowInteration = YES;
     [self.contentView addSubview:self.scrollView];
+}
+- (CGFloat)getScrollViewZoomScale {
+    return self.scrollView.zoomScale;
+}
+- (void)setScrollViewZoomScale:(CGFloat)zoomScale {
+    [self.scrollView setZoomScale:zoomScale animated:NO];
+}
+- (CGSize)getScrollViewContentSize {
+    return self.scrollView.contentSize;
+}
+- (void)setScrollViewContnetSize:(CGSize)contentSize {
+    [self.scrollView setContentSize:contentSize];
+}
+- (CGPoint)getScrollViewContentOffset {
+    return self.scrollView.contentOffset;
+}
+- (void)setScrollViewContentOffset:(CGPoint)contentOffset {
+    [self.scrollView setContentOffset:contentOffset animated:NO];
 }
 - (void)resetScale:(BOOL)animated {
     if (self.model.type != HXPhotoModelMediaTypePhotoGif) {
@@ -177,8 +194,8 @@
 }
 #pragma mark - < UIScrollViewDelegate >
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    if (scrollView.isTracking && scrollView.isDecelerating) {
-        self.allowInteration = NO;
+    if (self.scrollViewDidScroll) {
+        self.scrollViewDidScroll(scrollView);
     }
 }
 - (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
@@ -188,11 +205,6 @@
     CGFloat offsetX = (scrollView.frame.size.width > scrollView.contentSize.width) ? (scrollView.frame.size.width - scrollView.contentSize.width) * 0.5 : 0.0;
     CGFloat offsetY = (scrollView.frame.size.height > scrollView.contentSize.height) ? (scrollView.frame.size.height - scrollView.contentSize.height) * 0.5 : 0.0;
     self.previewContentView.center = CGPointMake(scrollView.contentSize.width * 0.5 + offsetX, scrollView.contentSize.height * 0.5 + offsetY);
-}
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    if (scrollView.contentOffset.y >= -40) {
-        self.allowInteration = YES;
-    }
 }
 - (void)layoutSubviews {
     [super layoutSubviews];

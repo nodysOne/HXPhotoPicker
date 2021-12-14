@@ -2,8 +2,8 @@
 //  HXPhotoInteractiveTransition.m
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2017/10/28.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 2017/10/28.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import "HXPhotoInteractiveTransition.h"
@@ -12,8 +12,8 @@
 #import "HXPhotoPreviewBottomView.h"
 @interface HXPhotoInteractiveTransition ()<UIGestureRecognizerDelegate>
 @property (nonatomic, weak) id<UIViewControllerContextTransitioning> transitionContext;
-@property (nonatomic, weak) HXPhotoPreviewViewController *vc;
-@property (nonatomic, weak) HXPhotoViewController *toVC;
+@property (nonatomic, weak) UIViewController *vc;
+@property (weak, nonatomic) HXPreviewContentView *contentView;
 @property (strong, nonatomic) UIView *bgView;
 @property (weak, nonatomic) HXPhotoViewCell *tempCell;
 @property (weak, nonatomic) HXPhotoPreviewViewCell *fromCell;
@@ -21,90 +21,104 @@
 @property (assign, nonatomic) CGPoint transitionImgViewCenter;
 @property (assign, nonatomic) CGFloat beginX;
 @property (assign, nonatomic) CGFloat beginY;
-@property (assign, nonatomic) CGPoint slidingGap;
+
+
+@property (assign, nonatomic) CGFloat scrollViewZoomScale;
+@property (assign, nonatomic) CGSize scrollViewContentSize;
+@property (assign, nonatomic) CGPoint scrollViewContentOffset;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
-@property (assign, nonatomic) BOOL startPop;
-@property (assign, nonatomic) BOOL isFinished;
+
 @property (assign, nonatomic) BOOL beginInterPercentCompletion;
 @end
 
 @implementation HXPhotoInteractiveTransition
 - (void)addPanGestureForViewController:(UIViewController *)viewController {
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(gestureRecognizeDidUpdate:)];
-    self.slidingGap = CGPointZero;
     self.panGesture.delegate = self;
-    self.vc = (HXPhotoPreviewViewController *)viewController;
+    self.vc = viewController;
+    if ([viewController isKindOfClass:[HXPhotoPreviewViewController class]]) {
+        HXPhotoPreviewViewController *previewVC = (HXPhotoPreviewViewController *)self.vc;
+        HXWeakSelf
+        previewVC.currentCellScrollViewDidScroll = ^(UIScrollView *scrollView) {
+            CGFloat offsetY = scrollView.contentOffset.y;
+            if (offsetY < 0) {
+                weakSelf.atFirstPan = YES;
+            }else if (offsetY == 0) {
+                if (weakSelf.interation) {
+                    weakSelf.atFirstPan = NO;
+                }
+            }else {
+                weakSelf.atFirstPan = NO;
+            }
+        };
+    }
     [viewController.view addGestureRecognizer:self.panGesture];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
-    return !self.vc.collectionView.isDragging;
+    if ([otherGestureRecognizer.view isKindOfClass:[UIScrollView class]] &&
+        ![otherGestureRecognizer.view isKindOfClass:[UICollectionView class]]) {
+        UIScrollView *scrollView = (UIScrollView *)otherGestureRecognizer.view;
+        if (scrollView.contentOffset.y <= 0 &&
+            !scrollView.zooming &&
+            !scrollView.isZoomBouncing &&
+            self.atFirstPan) {
+            return YES;
+        }
+    }
+    return NO;
+}
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    HXPhotoPreviewViewController *previewVC = (HXPhotoPreviewViewController *)self.vc;
+    HXPhotoPreviewViewCell *viewCell = [previewVC currentPreviewCell:previewVC.modelArray[previewVC.currentModelIndex]];
+    if (viewCell.scrollView.zooming ||
+        viewCell.scrollView.zoomScale < 1.0f ||
+        viewCell.scrollView.isZoomBouncing) {
+
+        return NO;
+    }
+    [viewCell.scrollView setContentOffset:viewCell.scrollView.contentOffset animated:NO];
+    return YES;
 }
 - (void)gestureRecognizeDidUpdate:(UIPanGestureRecognizer *)gestureRecognizer {
-    if (self.isFinished) {
-        return;
-    }
-    BOOL isTracking = NO;
-    HXPhotoPreviewViewCell *cell = [self.vc currentPreviewCell];
-    CGRect toRect = [cell.previewContentView convertRect:cell.previewContentView.bounds toView:cell.scrollView];
-    if ((cell.scrollView.isZooming || cell.scrollView.contentOffset.y > 0 || cell.scrollView.isZoomBouncing || !cell.allowInteration || (toRect.origin.x != 0 && cell.previewContentView.hx_w > cell.scrollView.hx_w)) && !self.interation) {
-        return;
-    }else {
-        isTracking = cell.scrollView.isTracking;
-    }
+    CGFloat scale = [self panGestureScale:gestureRecognizer];
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan: {
+            if (scale < 0) {
+                [self.vc.view removeGestureRecognizer:self.panGesture];
+                [self.vc.view addGestureRecognizer:self.panGesture];
+                return;
+            }
             [self panGestureBegan:gestureRecognizer];
         }   break;
         case UIGestureRecognizerStateChanged:
-            if (!self.interation || !self.beginInterPercentCompletion) {
-                if (isTracking) {
-                    [self panGestureBegan:gestureRecognizer];
-                    if (self.interation) {
-                        self.slidingGap = [gestureRecognizer translationInView:gestureRecognizer.view];
-                    }
-                }
-                return;
-            }
             [self panGestureChanged:gestureRecognizer];
             break;
         case UIGestureRecognizerStateEnded:
-            self.startPop = NO;
             [self panGestureEnd:gestureRecognizer];
-            self.slidingGap = CGPointZero;
             break;
         default:
-            self.startPop = NO;
             [self panGestureOther:gestureRecognizer];
-            self.slidingGap = CGPointZero;
             break;
     }
 }
 - (CGFloat)panGestureScale:(UIPanGestureRecognizer *)panGesture {
+    CGFloat scale = 0;
     CGPoint translation = [panGesture translationInView:panGesture.view];
     CGFloat transitionY = translation.y;
-    CGFloat scale = (transitionY - self.slidingGap.y) / ((panGesture.view.frame.size.height - 50) / 2);
+    scale = transitionY / ((panGesture.view.frame.size.height - 50) / 2);
     if (scale > 1.f) {
         scale = 1.f;
     }
     return scale;
 }
 - (void)panGestureBegan:(UIPanGestureRecognizer *)panGesture {
-    if (self.interation || self.beginInterPercentCompletion || self.startPop) {
-        return;
-    }
+    self.beginInterPercentCompletion = NO;
     HXPhotoPreviewViewController *previewVC = (HXPhotoPreviewViewController *)self.vc;
-    CGPoint velocity = [panGesture velocityInView:previewVC.view];
-    BOOL isVerticalGesture = (fabs(velocity.y) > fabs(velocity.x) && velocity.y > 0);
-    if (!isVerticalGesture) {
-        return;
-    }
     [previewVC setStopCancel:YES];
     self.beginX = [panGesture locationInView:panGesture.view].x;
     self.beginY = [panGesture locationInView:panGesture.view].y;
     self.interation = YES;
-    self.beginInterPercentCompletion = NO;
-    self.startPop = YES;
     [self.vc.navigationController popViewControllerAnimated:YES];
 }
 - (void)panGestureChanged:(UIPanGestureRecognizer *)panGesture {
@@ -118,8 +132,8 @@
         if (imageViewScale < 0.4) {
             imageViewScale = 0.4;
         }
-        self.fromCell.center = CGPointMake(self.transitionImgViewCenter.x + (translation.x - self.slidingGap.x), self.transitionImgViewCenter.y + (translation.y - self.slidingGap.y));
-        self.fromCell.transform = CGAffineTransformMakeScale(imageViewScale, imageViewScale);
+        self.contentView.center = CGPointMake(self.transitionImgViewCenter.x + translation.x, self.transitionImgViewCenter.y + translation.y);
+        self.contentView.transform = CGAffineTransformMakeScale(imageViewScale, imageViewScale);
         
         [self updateInterPercent:1 - scale * scale];
         
@@ -133,19 +147,21 @@
         if (scale < 0.f) {
             scale = 0.f;
         }
+        self.interation = NO;
         if (scale < 0.15f){
             [self cancelInteractiveTransition];
             [self interPercentCancel];
         }else {
-            self.isFinished = YES;
             [self finishInteractiveTransition];
             [self interPercentFinish];
         }
     }
+    self.beginInterPercentCompletion = NO;
 }
 - (void)panGestureOther:(UIPanGestureRecognizer *)panGesture {
     self.vc.view.userInteractionEnabled = YES;
     if (self.interation) {
+        self.interation = NO;
         [self cancelInteractiveTransition];
         [self interPercentCancel];
     }
@@ -156,31 +172,21 @@
     HXPhotoPreviewViewController *fromVC = (HXPhotoPreviewViewController *)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
     
     HXPhotoViewController *toVC = (HXPhotoViewController *)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
-    UIView *containerView = [transitionContext containerView];
-    [containerView addSubview:toVC.view];
-    [containerView addSubview:fromVC.view];
-    if (!self.startPop) {
-        self.interation = NO;
-        [self.vc.view removeGestureRecognizer:self.panGesture];
-        self.isFinished = YES;
-        [self cancelInteractiveTransition];
-        NSTimeInterval duration = fromVC.manager.configuration.popInteractiveTransitionDuration;
-        UIViewAnimationOptions option = UIViewAnimationOptionLayoutSubviews;
-        [UIView animateWithDuration:duration delay:0 options:option animations:^{
-        } completion:^(BOOL finished) {
-            [self.transitionContext completeTransition:NO];
-            self.isFinished = NO;
-            [self.vc.view addGestureRecognizer:self.panGesture];
-        }];
-        return;
-    }
+    
     HXPhotoModel *model = [fromVC.modelArray objectAtIndex:fromVC.currentModelIndex];
+    
     HXPhotoPreviewViewCell *fromCell = [fromVC currentPreviewCell:model];
     HXPhotoViewCell *toCell = [toVC currentPreviewCell:model];
     self.fromCell = fromCell;
+    self.scrollViewZoomScale = [self.fromCell getScrollViewZoomScale];
+    self.scrollViewContentSize = [self.fromCell getScrollViewContentSize];
+    self.scrollViewContentOffset = [self.fromCell getScrollViewContentOffset];
+    
+    UIView *containerView = [transitionContext containerView];
     CGRect tempImageViewFrame;
-    self.imageInitialFrame = fromCell.frame;
-    tempImageViewFrame = [fromCell convertRect:fromCell.bounds toView:containerView];
+    self.contentView = fromCell.previewContentView;
+    self.imageInitialFrame = fromCell.previewContentView.frame;
+    tempImageViewFrame = [fromCell.previewContentView convertRect:fromCell.previewContentView.bounds toView:containerView];
     if (!toCell) {
         [toVC scrollToModel:model];
         toCell = [toVC currentPreviewCell:model];
@@ -203,11 +209,17 @@
     }else {
         scaleY = (self.beginY - tempImageViewFrame.origin.y) / tempImageViewFrame.size.height;
     }
-    self.fromCell.layer.anchorPoint = CGPointMake(scaleX, scaleY);
-    self.fromCell.frame = tempImageViewFrame;
-    self.transitionImgViewCenter = self.fromCell.center;
+    self.contentView.layer.anchorPoint = CGPointMake(scaleX, scaleY);
+    
+    [fromCell resetScale:NO];
+    [fromCell refreshImageSize];
+    self.contentView.frame = tempImageViewFrame;
+    self.transitionImgViewCenter = self.contentView.center;
+    
+    [containerView addSubview:toVC.view];
+    [containerView addSubview:fromVC.view];
     [toVC.view insertSubview:self.bgView belowSubview:toVC.bottomView];
-    [toVC.view insertSubview:self.fromCell belowSubview:toVC.bottomView];
+    [toVC.view insertSubview:self.contentView belowSubview:toVC.bottomView];
     if (!fromVC.bottomView.userInteractionEnabled) {
         self.bgView.backgroundColor = [UIColor blackColor];
 #pragma clang diagnostic push
@@ -227,14 +239,11 @@
         }
         toVC.navigationController.navigationBar.alpha = 0;
         toVC.bottomView.alpha = 0;
-        toVC.limitView.alpha = 0;
     }else {
-        toVC.limitView.alpha = 1;
         toVC.bottomView.alpha = 1;
         self.bgView.backgroundColor = [HXPhotoCommon photoCommon].isDark ? [UIColor blackColor] : fromVC.manager.configuration.previewPhotoViewBgColor;
     }
-//    toVC.navigationController.navigationBar.userInteractionEnabled = NO;
-    self.toVC = toVC;
+    toVC.navigationController.navigationBar.userInteractionEnabled = NO;
     fromVC.collectionView.hidden = YES;
     toCell.hidden = YES;
     fromVC.view.backgroundColor = [UIColor clearColor];
@@ -244,10 +253,9 @@
         [toVC scrollToPoint:toCell rect:rect];
     }
     self.tempCell = toCell;
-    if (self.fromCell.previewContentView.model.subType == HXPhotoModelMediaSubTypeVideo) {
-        [self.fromCell.previewContentView.videoView hideOtherView:YES];
+    if (self.contentView.model.subType == HXPhotoModelMediaSubTypeVideo) {
+        [self.contentView.videoView hideOtherView:YES];
     }
-    [self resetScrollView:NO];
     self.beginInterPercentCompletion = YES;
 }
 - (void)removeAllAnimationsForView:(UIView *)view {
@@ -279,7 +287,6 @@
     if (!fromVC.bottomView.userInteractionEnabled) {
         HXPhotoViewController *toVC = (HXPhotoViewController *)[self.transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
         toVC.bottomView.alpha = 1 - scale;
-        toVC.limitView.alpha = 1 - scale;
         toVC.navigationController.navigationBar.alpha = 1 - scale;
     }
 }
@@ -295,24 +302,23 @@
         [toVC.navigationController setNavigationBarHidden:YES];
         toVC.navigationController.navigationBar.alpha = 1;
     }
-    if (self.fromCell.previewContentView.model.subType == HXPhotoModelMediaSubTypeVideo) {
-        [self.fromCell.previewContentView.videoView showOtherView];
+    if (self.contentView.model.subType == HXPhotoModelMediaSubTypeVideo) {
+        [self.contentView.videoView showOtherView];
     }
     self.panGesture.enabled = NO;
     [UIView animateWithDuration:0.2f animations:^{
         fromVC.view.alpha = 1;
-        self.fromCell.transform = CGAffineTransformIdentity;
-        self.fromCell.center = self.transitionImgViewCenter;
+        self.contentView.transform = CGAffineTransformIdentity;
+        self.contentView.center = self.transitionImgViewCenter;
+        
         self.bgView.alpha = 1;
         if (!fromVC.bottomView.userInteractionEnabled) {
             toVC.bottomView.alpha = 0;
-            toVC.limitView.alpha = 0;
         }else {
             toVC.bottomView.alpha = 1;
-            toVC.limitView.alpha = 1;
         }
     } completion:^(BOOL finished) {
-//        toVC.navigationController.navigationBar.userInteractionEnabled = YES;
+        toVC.navigationController.navigationBar.userInteractionEnabled = YES;
         if (finished) {
             fromVC.collectionView.hidden = NO;
             if (!fromVC.bottomView.userInteractionEnabled) {
@@ -326,21 +332,24 @@
             }
             self.tempCell.hidden = NO;
             self.tempCell = nil;
-            [self resetScrollView:YES];
-            self.fromCell.layer.anchorPoint = CGPointMake(0.5f, 0.5f);
-            self.fromCell.frame = self.imageInitialFrame;
-            [fromVC.collectionView addSubview:self.fromCell];
+            
+            self.contentView.layer.anchorPoint = CGPointMake(0.5f, 0.5f);
+            [self.fromCell againAddImageView];
+            [self.fromCell setScrollViewZoomScale:self.scrollViewZoomScale];
+            self.contentView.frame = self.imageInitialFrame;
+            [self.fromCell setScrollViewContnetSize:self.scrollViewContentSize];
+            if (self.scrollViewContentOffset.y < 0) {
+                self.scrollViewContentOffset = CGPointMake(self.scrollViewContentOffset.x, 0);
+            }
+            [self.fromCell setScrollViewContentOffset:self.scrollViewContentOffset];
+             
             [self.bgView removeFromSuperview];
             self.bgView = nil;
             self.fromCell = nil;
-            self.toVC = nil;
-            [self.transitionContext completeTransition:NO];
-            self.transitionContext = nil;
+            [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 self.panGesture.enabled = YES;
             });
-            self.interation = NO;
-            self.beginInterPercentCompletion = NO;
         }
     }];
 }
@@ -353,28 +362,29 @@
     NSTimeInterval duration = fromVC.manager.configuration.popInteractiveTransitionDuration;
     UIViewAnimationOptions option = UIViewAnimationOptionLayoutSubviews;
     
-    if (self.fromCell.previewContentView.model.subType == HXPhotoModelMediaSubTypeVideo) {
-        [self.fromCell.previewContentView.videoView hideOtherView:NO];
+    if (self.contentView.model.subType == HXPhotoModelMediaSubTypeVideo) {
+        [self.contentView.videoView hideOtherView:NO];
     }
-    CGRect toRect = [self.tempCell convertRect:self.tempCell.bounds toView:containerView];
+    CGRect tempImageViewFrame = self.contentView.frame;
+    self.contentView.layer.anchorPoint = CGPointMake(0.5, 0.5);
+    self.contentView.transform = CGAffineTransformIdentity;
+    self.contentView.frame = tempImageViewFrame;
+    [self.contentView layoutIfNeeded];
+    
     [UIView animateWithDuration:duration delay:0.0 usingSpringWithDamping:0.8 initialSpringVelocity:0.1 options:option animations:^{
         if (self.tempCell) {
-            self.fromCell.transform = CGAffineTransformIdentity;
-            self.fromCell.frame = toRect;
-            self.fromCell.scrollView.contentOffset = CGPointZero;
-            self.fromCell.previewContentView.frame = CGRectMake(0, 0, toRect.size.width, toRect.size.height);
+            self.contentView.frame = [self.tempCell.imageView convertRect:self.tempCell.imageView.bounds toView: containerView]; 
         }else {
-            self.fromCell.center = self.transitionImgViewCenter;
-            self.fromCell.alpha = 0;
-            self.fromCell.transform = CGAffineTransformMakeScale(0.3, 0.3);
+            self.contentView.center = self.transitionImgViewCenter;
+            self.contentView.alpha = 0;
+            self.contentView.transform = CGAffineTransformMakeScale(0.3, 0.3);
         }
         fromVC.view.alpha = 0;
         self.bgView.alpha = 0;
         toVC.navigationController.navigationBar.alpha = 1;
         toVC.bottomView.alpha = 1;
-        toVC.limitView.alpha = 1;
     }completion:^(BOOL finished) {
-//        toVC.navigationController.navigationBar.userInteractionEnabled = YES;
+        toVC.navigationController.navigationBar.userInteractionEnabled = YES;
         if (finished) {
             if (!fromVC.bottomView.userInteractionEnabled && HX_IOS11_Later) {
                 // 处理 ios11 当导航栏隐藏时手势返回的问题
@@ -384,29 +394,16 @@
             [self.tempCell bottomViewPrepareAnimation];
             self.tempCell.hidden = NO;
             [self.tempCell bottomViewStartAnimation];
-            
-            [self.fromCell.previewContentView cancelRequest];
-            [self.fromCell removeFromSuperview];
+            [self.contentView cancelRequest];
+            [self.contentView removeFromSuperview];
             [self.bgView removeFromSuperview];
-            self.fromCell = nil;
-            self.toVC = nil;
-            [self.transitionContext completeTransition:YES];
-            self.transitionContext = nil;
+            self.contentView = nil;
+            [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
         }
-        self.interation = NO;
-        self.beginInterPercentCompletion = NO;
     }];  
 }
 - (void)startInteractiveTransition:(id<UIViewControllerContextTransitioning>)transitionContext {
     self.transitionContext = transitionContext;
     [self beginInterPercent];
-}
-- (void)resetScrollView:(BOOL)enabled {
-    id<UIViewControllerContextTransitioning> transitionContext = self.transitionContext;
-    HXPhotoPreviewViewController *fromVC = (HXPhotoPreviewViewController *)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
-    fromVC.collectionView.scrollEnabled = enabled;
-    self.fromCell.scrollView.scrollEnabled = enabled;
-    self.fromCell.scrollView.pinchGestureRecognizer.enabled = enabled;
-    self.fromCell.scrollView.clipsToBounds = enabled;
 }
 @end

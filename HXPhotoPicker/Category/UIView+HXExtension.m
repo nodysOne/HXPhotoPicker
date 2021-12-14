@@ -2,12 +2,13 @@
 //  UIView+HXExtension.m
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 17/2/16.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 17/2/16.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import "UIView+HXExtension.h"
-#import "HXPhotoPicker.h" 
+#import "HXPhotoPicker.h"
+#import <UIView+Toast.h>
 
 @implementation UIView (HXExtension)
 - (void)setHx_x:(CGFloat)hx_x
@@ -106,14 +107,14 @@
 
 /**
  获取当前视图的控制器
- 
+
  @return 控制器
  */
-- (UIViewController*)hx_viewController {
-    for (UIView* next = [self superview]; next; next = next.superview) {
-        UIResponder* nextResponder = [next nextResponder];
+- (UIViewController *)hx_viewController {
+    for (UIView *next = [self superview]; next; next = next.superview) {
+        UIResponder *nextResponder = [next nextResponder];
         if ([nextResponder isKindOfClass:[UINavigationController class]] || [nextResponder isKindOfClass:[UIViewController class]]) {
-            return (UIViewController*)nextResponder;
+            return (UIViewController *)nextResponder;
         }
     }
     return nil;
@@ -121,7 +122,7 @@
 
 - (void)hx_presentAlbumListViewControllerWithManager:(HXPhotoManager *)manager delegate:(id)delegate {
     HXAlbumListViewController *vc = [[HXAlbumListViewController alloc] initWithManager:manager];
-    vc.delegate = delegate ? delegate : (id)self; 
+    vc.delegate = delegate ? delegate : (id)self;
     HXCustomNavigationController *nav = [[HXCustomNavigationController alloc] initWithRootViewController:vc];
     nav.supportRotation = manager.configuration.supportRotation;
     nav.modalPresentationStyle = UIModalPresentationOverFullScreen;
@@ -130,12 +131,12 @@
 }
 
 - (void)hx_presentCustomCameraViewControllerWithManager:(HXPhotoManager *)manager delegate:(id)delegate {
-    if(![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         [self.hx_viewController.view hx_showImageHUDText:[NSBundle hx_localizedStringForKey:@"无法使用相机!"]];
         return;
     }
     HXWeakSelf
-    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+    [AVCaptureDevice requestAccessForMediaType: AVMediaTypeVideo completionHandler:^(BOOL granted) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (granted) {
                 HXCustomCameraViewController *vc = [[HXCustomCameraViewController alloc] init];
@@ -148,35 +149,50 @@
                 nav.modalPresentationStyle = UIModalPresentationOverFullScreen;
                 nav.modalPresentationCapturesStatusBarAppearance = YES;
                 [weakSelf.hx_viewController presentViewController:nav animated:YES completion:nil];
-            }else {
+            } else {
                 [HXPhotoTools showUnusableCameraAlert:weakSelf.hx_viewController];
             }
         });
     }];
 }
 
-- (void)hx_showImageHUDText:(NSString *)text {
-    CGFloat hudW = [UILabel hx_getTextWidthWithText:text height:15 fontSize:14];
-    if (hudW > self.frame.size.width - 60) {
-        hudW = self.frame.size.width - 60;
-    }
+- (void)hx_showToast:(NSString *)message {
     
-    CGFloat hudH = [UILabel hx_getTextHeightWithText:text width:hudW fontSize:14];
-    if (hudW < 100) {
-        hudW = 100;
-    }
-    HXHUD *hud = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, hudW + 20, 110 + hudH - 15) imageName:@"hx_alert_failed" text:text];
-    hud.alpha = 0;
-    [self addSubview:hud];
-    hud.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
-    hud.transform = CGAffineTransformMakeScale(0.4, 0.4);
-    [UIView animateWithDuration:0.25 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:1.0 options:0 animations:^{
-        hud.alpha = 1;
-        hud.transform = CGAffineTransformIdentity;
-    } completion:nil];
-    [UIView cancelPreviousPerformRequestsWithTarget:self];
-    [self performSelector:@selector(hx_handleGraceTimer) withObject:nil afterDelay:1.75f inModes:@[NSRunLoopCommonModes]];
-} 
+    CSToastStyle *style = [[CSToastStyle alloc] initWithDefaultStyle];
+    style.backgroundColor = [UIColor hx_colorWithHexStr:@"#181818" alpha:0.8];
+    style.cornerRadius = HX_Width(4);
+    style.verticalPadding = HX_Width(18);
+    style.horizontalPadding = HX_Width(22);
+    style.messageFont = [UIFont hx_regularPingFangOfSize:HX_FontSize(32)];
+    [self makeToast:message duration:2.0 position:CSToastPositionCenter style:style];
+}
+
+- (void)hx_showImageHUDText:(NSString *)text {
+    
+    [self hx_showToast:text];
+    
+//    CGFloat hudW = [UILabel hx_getTextWidthWithText:text height:15 fontSize:14];
+//    if (hudW > self.frame.size.width - 60) {
+//        hudW = self.frame.size.width - 60;
+//    }
+//
+//    CGFloat hudH = [UILabel hx_getTextHeightWithText:text width:hudW fontSize:14];
+//    if (hudW < 100) {r
+//        hudW = 100;
+//    }
+////    HXHUD *hud = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, hudW + 20, 110 + hudH - 15) imageName:@"hx_alert_failed" text:text];
+//    HXHUD *hud = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, hudW + 20, 110 + hudH - 15) imageName:nil text:text];
+//    hud.alpha = 0;
+//    [self addSubview:hud];
+//    hud.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
+//    hud.transform = CGAffineTransformMakeScale(0.4, 0.4);
+//    [UIView animateWithDuration:0.25 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:1.0 options:0 animations:^{
+//        hud.alpha = 1;
+//        hud.transform = CGAffineTransformIdentity;
+//    } completion:nil];
+//    [UIView cancelPreviousPerformRequestsWithTarget:self];
+//    [self performSelector:@selector(hx_handleGraceTimer) withObject:nil afterDelay:1.75f inModes:@[NSRunLoopCommonModes]];
+}
 
 - (void)hx_immediatelyShowLoadingHudWithText:(NSString *)text {
     [self hx_showLoadingHudWithText:text delay:0 immediately:YES];
@@ -191,40 +207,44 @@
 }
 
 - (void)hx_showLoadingHudWithText:(NSString *)text delay:(NSTimeInterval)delay immediately:(BOOL)immediately {
-    CGFloat hudW = [UILabel hx_getTextWidthWithText:text height:15 fontSize:14];
-    if (hudW > self.frame.size.width - 60) {
-        hudW = self.frame.size.width - 60;
-    }
     
-    CGFloat hudH = [UILabel hx_getTextHeightWithText:text width:hudW fontSize:14];
-    CGFloat width = 110;
-    CGFloat height = width + hudH - 15;
-    if (!text) {
-        width = 95;
-        height = 95;
-    }
-    HXHUD *hud = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, width, height) imageName:nil text:text];
-    [hud showloading];
-    hud.alpha = 0;
-    [self addSubview:hud];
-    hud.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
-    if (immediately) {
-        hud.alpha = 1;
-    }else {
-        hud.transform = CGAffineTransformMakeScale(0.4, 0.4);
-        [UIView animateWithDuration:0.25 delay:delay usingSpringWithDamping:0.5 initialSpringVelocity:1 options:0 animations:^{
-            hud.alpha = 1;
-            hud.transform = CGAffineTransformIdentity;
-        } completion:nil];
-    }
+    [self hx_showToast:text];
+//    CGFloat hudW = [UILabel hx_getTextWidthWithText:text height:15 fontSize:14];
+//    if (hudW > self.frame.size.width - 60) {
+//        hudW = self.frame.size.width - 60;
+//    }
+//
+//    CGFloat hudH = [UILabel hx_getTextHeightWithText:text width:hudW fontSize:14];
+//    CGFloat width = 110;
+//    CGFloat height = width + hudH - 15;
+//    if (!text) {
+//        width = 95;
+//        height = 95;
+//    }
+//    HXHUD *hud = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, width, height) imageName:nil text:text];
+//    [hud showloading];
+//    hud.alpha = 0;
+//    [self addSubview:hud];
+//    hud.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
+//    if (immediately) {
+//        hud.alpha = 1;
+//    } else {
+//        hud.transform = CGAffineTransformMakeScale(0.4, 0.4);
+//        [UIView animateWithDuration:0.25 delay:delay usingSpringWithDamping:0.5 initialSpringVelocity:1 options:0 animations:^{
+//            hud.alpha = 1;
+//            hud.transform = CGAffineTransformIdentity;
+//        } completion:nil];
+//    }
 }
 
 - (void)hx_handleLoading {
     [self hx_handleLoading:YES];
-} 
+}
+
 - (void)hx_handleLoading:(BOOL)animation {
     [self hx_handleLoading:animation duration:0.2f];
 }
+
 - (void)hx_handleLoading:(BOOL)animation duration:(NSTimeInterval)duration {
     [UIView cancelPreviousPerformRequestsWithTarget:self];
     for (UIView *view in self.subviews) {
@@ -236,12 +256,13 @@
                 } completion:^(BOOL finished) {
                     [view removeFromSuperview];
                 }];
-            }else {
+            } else {
                 [view removeFromSuperview];
-            } 
+            }
         }
     }
 }
+
 - (void)hx_handleImageWithAnimation:(BOOL)animation {
     [UIView cancelPreviousPerformRequestsWithTarget:self];
     for (UIView *view in self.subviews) {
@@ -253,24 +274,27 @@
                 } completion:^(BOOL finished) {
                     [view removeFromSuperview];
                 }];
-            }else {
+            } else {
                 [view removeFromSuperview];
             }
         }
     }
 }
+
 - (void)hx_handleImageWithDelay:(NSTimeInterval)delay {
     if (delay) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self hx_handleGraceTimer];
         });
-    }else {
+    } else {
         [self hx_handleGraceTimer];
     }
 }
+
 - (void)hx_handleGraceTimer {
     [self hx_handleImageWithAnimation:YES];
 }
+
 /**
  圆角
  使用自动布局，需要在layoutsubviews 中使用
@@ -286,7 +310,7 @@
     if ((NO)) {
 #endif
     } else {
-        UIBezierPath * path = [UIBezierPath bezierPathWithRoundedRect:self.bounds byRoundingCorners:corner cornerRadii:CGSizeMake(radius, radius)];
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:self.bounds byRoundingCorners:corner cornerRadii:CGSizeMake(radius, radius)];
         CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
         maskLayer.frame = self.bounds;
         maskLayer.path = path.CGPath;
@@ -295,9 +319,8 @@
 }
 
 - (UIImage *)hx_captureImageAtFrame:(CGRect)rect {
-    
-    UIImage* image = nil;
-    
+    UIImage *image = nil;
+
     if (/* DISABLES CODE */ (YES)) {
         CGSize size = self.bounds.size;
         CGPoint point = self.bounds.origin;
@@ -307,45 +330,43 @@
         }
         @autoreleasepool {
             UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
-            [self drawViewHierarchyInRect:(CGRect){point, self.bounds.size} afterScreenUpdates:YES];
+            [self drawViewHierarchyInRect:(CGRect) { point, self.bounds.size } afterScreenUpdates:YES];
             image = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
         }
-        
     } else {
-        
-            BOOL translateCTM = !CGRectEqualToRect(CGRectZero, rect);
-        
-            if (!translateCTM) {
-                rect = self.frame;
-            }
-        
-            /** 参数取整，否则可能会出现1像素偏差 */
-            /** 有小数部分才调整差值 */
-#define lfme_fixDecimal(d) ((fmod(d, (int)d)) > 0.59f ? ((int)(d+0.5)*1.f) : (((fmod(d, (int)d)) < 0.59f && (fmod(d, (int)d)) > 0.1f) ? ((int)(d)*1.f+0.5f) : (int)(d)*1.f))
-            rect.origin.x = lfme_fixDecimal(rect.origin.x);
-            rect.origin.y = lfme_fixDecimal(rect.origin.y);
-            rect.size.width = lfme_fixDecimal(rect.size.width);
-            rect.size.height = lfme_fixDecimal(rect.size.height);
+        BOOL translateCTM = !CGRectEqualToRect(CGRectZero, rect);
+
+        if (!translateCTM) {
+            rect = self.frame;
+        }
+
+        /** 参数取整，否则可能会出现1像素偏差 */
+        /** 有小数部分才调整差值 */
+#define lfme_fixDecimal(d) ((fmod(d, (int)d)) > 0.59f ? ((int)(d + 0.5) * 1.f) : (((fmod(d, (int)d)) < 0.59f && (fmod(d, (int)d)) > 0.1f) ? ((int)(d) * 1.f + 0.5f) : (int)(d) * 1.f))
+        rect.origin.x = lfme_fixDecimal(rect.origin.x);
+        rect.origin.y = lfme_fixDecimal(rect.origin.y);
+        rect.size.width = lfme_fixDecimal(rect.size.width);
+        rect.size.height = lfme_fixDecimal(rect.size.height);
 #undef lfme_fixDecimal
-            CGSize size = rect.size;
-        
+        CGSize size = rect.size;
+
         @autoreleasepool {
             //1.开启上下文
             UIGraphicsBeginImageContextWithOptions(size, NO, [UIScreen mainScreen].scale);
-            
+
             CGContextRef context = UIGraphicsGetCurrentContext();
-            
+
             if (translateCTM) {
                 /** 移动上下文 */
                 CGContextTranslateCTM(context, -rect.origin.x, -rect.origin.y);
             }
             //2.绘制图层
-            [self.layer renderInContext: context];
-            
+            [self.layer renderInContext:context];
+
             //3.从上下文中获取新图片
             image = UIGraphicsGetImageFromCurrentImageContext();
-            
+
             //4.关闭图形上下文
             UIGraphicsEndImageContext();
         }
@@ -354,21 +375,22 @@
 }
 
 - (UIColor *)hx_colorOfPoint:(CGPoint)point {
-    unsigned char pixel[4] = {0};
+    unsigned char pixel[4] = { 0 };
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CGContextRef context = CGBitmapContextCreate(pixel, 1, 1, 8, 4, colorSpace, kCGImageAlphaPremultipliedLast);
-    
+
     CGContextTranslateCTM(context, -point.x, -point.y);
-    
+
     [self.layer renderInContext:context];
-    
+
     CGContextRelease(context);
     CGColorSpaceRelease(colorSpace);
-    
-    UIColor *color = [UIColor colorWithRed:pixel[0]/255.0 green:pixel[1]/255.0 blue:pixel[2]/255.0 alpha:pixel[3]/255.0];
-    
+
+    UIColor *color = [UIColor colorWithRed:pixel[0] / 255.0 green:pixel[1] / 255.0 blue:pixel[2] / 255.0 alpha:pixel[3] / 255.0];
+
     return color;
 }
+
 @end
 
 @interface HXHUD ()
@@ -394,65 +416,93 @@
     return self;
 }
 
+
 - (void)setup {
     UIImage *image = self.imageName.length ? [UIImage hx_imageNamed:self.imageName] : nil;
     self.isImage = image != nil;
-    if ([HXPhotoCommon photoCommon].isDark) {
-        image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    }
-    self.imageView = [[UIImageView alloc] initWithImage:image];
-    [self addSubview:self.imageView];
-    if ([HXPhotoCommon photoCommon].isDark) {
-        self.imageView.tintColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1];
+    if (image != nil) {
+        
+        if ([HXPhotoCommon photoCommon].isDark) {
+            image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        }
+        self.imageView = [[UIImageView alloc] initWithImage:image];
+        [self addSubview:self.imageView];
+        if ([HXPhotoCommon photoCommon].isDark) {
+            self.imageView.tintColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1];
+        }
     }
     
+
     self.titleLb = [[UILabel alloc] init];
     self.titleLb.text = self.text;
     self.titleLb.textColor = [HXPhotoCommon photoCommon].isDark ? [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1] : [UIColor whiteColor];
     self.titleLb.textAlignment = NSTextAlignmentCenter;
-    self.titleLb.font = [UIFont systemFontOfSize:14];
+    self.titleLb.font = [UIFont hx_regularPingFangOfSize: HX_FontSize(32)];
     self.titleLb.numberOfLines = 0;
     [self addSubview:self.titleLb];
 }
+
 - (void)setText:(NSString *)text {
     _text = text;
     self.titleLb.text = text;
 }
+
 - (void)layoutSubviews {
     [super layoutSubviews];
-    
-    CGFloat imgW = self.imageView.image.size.width;
-    if (imgW <= 0) imgW = 37;
-    CGFloat imgH = self.imageView.image.size.height;
-    if (imgH <= 0) imgH = 37;
-    CGFloat imgCenterX = self.frame.size.width / 2;
-    self.imageView.frame = CGRectMake(0, 20, imgW, imgH);
-    self.imageView.center = CGPointMake(imgCenterX, self.imageView.center.y);
-    
-    self.titleLb.hx_x = 10;
-    self.titleLb.hx_y = CGRectGetMaxY(self.imageView.frame) + 10;
-    self.titleLb.hx_w = self.frame.size.width - 20;
-    self.titleLb.hx_h = [self.titleLb hx_getTextHeight];
-    if (self.text.length) {
-        self.hx_h = CGRectGetMaxY(self.titleLb.frame) + 20;
-    }
-    if (_loading) {
-        if (self.text) {
-            self.loading.frame = self.imageView.frame;
-        }else {
-            self.loading.frame = self.bounds;
+
+    if (self.imageName != nil) {
+        
+        CGFloat imgW = self.imageView.image.size.width;
+        if (imgW <= 0) imgW = 37;
+        CGFloat imgH = self.imageView.image.size.height;
+        if (imgH <= 0) imgH = 37;
+        CGFloat imgCenterX = self.frame.size.width / 2;
+        self.imageView.frame = CGRectMake(0, 20, imgW, imgH);
+        self.imageView.center = CGPointMake(imgCenterX, self.imageView.center.y);
+
+        self.titleLb.hx_x = 10;
+        self.titleLb.hx_y = CGRectGetMaxY(self.imageView.frame) + 10;
+        self.titleLb.hx_w = self.frame.size.width - 20;
+        self.titleLb.hx_h = [self.titleLb hx_getTextHeight];
+        if (self.text.length) {
+            self.hx_h = CGRectGetMaxY(self.titleLb.frame) + 20;
+        }
+        if (_loading) {
+            if (self.text) {
+                self.loading.frame = self.imageView.frame;
+            } else {
+                self.loading.frame = self.bounds;
+            }
+        }
+    }else {
+        
+        self.titleLb.hx_x = 10;
+        self.titleLb.hx_y = 10;
+        self.titleLb.hx_w = self.frame.size.width - 20;
+        self.titleLb.hx_h = [self.titleLb hx_getTextHeight];
+        if (self.text.length) {
+            self.hx_h = CGRectGetMaxY(self.titleLb.frame) + 20;
+        }
+        if (_loading) {
+            if (self.text) {
+                self.loading.frame = self.imageView.frame;
+            } else {
+                self.loading.frame = self.bounds;
+            }
         }
     }
+    
 }
+
 - (UIActivityIndicatorView *)loading {
     if (!_loading) {
-        _loading = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        _loading = [[UIActivityIndicatorView alloc] init];
 #ifdef __IPHONE_13_0
         if ([HXPhotoCommon photoCommon].isDark) {
             if (@available(iOS 13.0, *)) {
                 _loading.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge;
             } else {
-                _loading.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+                _loading.activityIndicatorViewStyle = UIActivityIndicatorViewStyleLarge;
             }
             _loading.color = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1];
         }
@@ -461,6 +511,7 @@
     }
     return _loading;
 }
+
 - (void)showloading {
     [self addSubview:self.loading];
     self.imageView.hidden = YES;
@@ -469,14 +520,15 @@
 - (UIVisualEffectView *)visualEffectView {
     if (!_visualEffectView) {
         if ([HXPhotoCommon photoCommon].isDark) {
-            UIBlurEffect *blurEffrct =[UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+            UIBlurEffect *blurEffrct = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
             _visualEffectView = [[UIVisualEffectView alloc]initWithEffect:blurEffrct];
-        }else {
-            UIBlurEffect *blurEffrct =[UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+        } else {
+            UIBlurEffect *blurEffrct = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
             _visualEffectView = [[UIVisualEffectView alloc]initWithEffect:blurEffrct];
         }
         _visualEffectView.frame = self.bounds;
     }
     return _visualEffectView;
 }
+
 @end

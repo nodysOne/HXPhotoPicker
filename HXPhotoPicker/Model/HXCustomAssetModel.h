@@ -2,8 +2,8 @@
 //  HXCustomAssetModel.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2018/7/25.
-//  Copyright © 2018年 Silence. All rights reserved.
+//  Created by 洪欣 on 2018/7/25.
+//  Copyright © 2018年 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -13,9 +13,6 @@
 
 /// 资源类型
 @property (assign, nonatomic) HXCustomAssetModelType type;
-
-/// 图片/视频尺寸
-@property (assign, nonatomic) CGSize imageSize;
 
 /// 网络图片地址 or 网络视频封面
 @property (strong, nonatomic) NSURL * _Nullable networkImageURL;

@@ -2,8 +2,8 @@
 //  HXPhotoEditSplashMaskLayer.m
 //  photoEditDemo
 //
-//  Created by Silence on 2020/7/1.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by 洪欣 on 2020/7/1.
+//  Copyright © 2020 洪欣. All rights reserved.
 //
 
 #import "HXPhotoEditSplashMaskLayer.h"
@@ -55,7 +55,7 @@ CGFloat angleBetweenLines(CGPoint line1Start, CGPoint line1End, CGPoint line2Sta
 - (instancetype)init {
     self = [super init];
     if (self) {
-//        self.contentsScale = [[UIScreen mainScreen] scale];
+        self.contentsScale = [[UIScreen mainScreen] scale];
         self.backgroundColor = [UIColor clearColor].CGColor;
         _lineArray = [@[] mutableCopy];
     }

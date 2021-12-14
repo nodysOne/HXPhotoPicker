@@ -2,8 +2,8 @@
 //  HX_PhotoEditViewController.m
 //  photoEditDemo
 //
-//  Created by Silence on 2020/6/20.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by 洪欣 on 2020/6/20.
+//  Copyright © 2020 洪欣. All rights reserved.
 //
 
 #import "HX_PhotoEditViewController.h"
@@ -64,7 +64,6 @@
     if (self) {
         self.transitioningDelegate = self;
         self.modalPresentationStyle = UIModalPresentationCustom;
-        self.isAutoBack = YES;
     }
     return self;
 }
@@ -74,7 +73,6 @@
         self.transitioningDelegate = self;
         self.modalPresentationStyle = UIModalPresentationCustom;
         self.configuration = configuration;
-        self.isAutoBack = YES;
     }
     return self;
 }
@@ -86,7 +84,6 @@
         self.modalPresentationStyle = UIModalPresentationCustom;
         self.photoEdit = photoEdit;
         self.configuration = configuration;
-        self.isAutoBack = YES;
     }
     return self;
 }
@@ -98,7 +95,6 @@
         self.modalPresentationStyle = UIModalPresentationCustom;
         self.editImage = editImage;
         self.configuration = configuration;
-        self.isAutoBack = YES;
     }
     return self;
 }
@@ -108,9 +104,6 @@
 }
 
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
-    if (!self.isAutoBack && !self.isCancel) {
-        return nil;
-    }
     return [HXPhotoEditTransition transitionWithType:HXPhotoEditTransitionTypeDismiss model:self.photoModel];
 }
 - (UIRectEdge)preferredScreenEdgesDeferringSystemGestures {
@@ -128,7 +121,7 @@
 }
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     if (!self.supportRotation) {
-        return self.configuration.supportedInterfaceOrientations;
+        return UIInterfaceOrientationMaskPortrait;
     }
     if (self.configuration.supportRotation) {
         return UIInterfaceOrientationMaskAll;
@@ -217,12 +210,13 @@
     self.orientationDidChange = YES;
 }
 - (void)changeSubviewFrame {
+    
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     CGFloat leftMargin = hxBottomMargin;
-    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown || HX_UI_IS_IPAD) {
+    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown) {
         leftMargin = 0;
         self.backBtn.hx_x = 20;
-        self.backBtn.hx_y = hxNavigationBarHeight - 20 - self.backBtn.hx_h;
+        self.backBtn.hx_y = hxNavigationBarHeight - 20 - _backBtn.hx_h;
         self.clippingToolBar.frame = CGRectMake(0, self.view.hx_h - HXClippingToolBar - hxBottomMargin, self.view.hx_w, HXClippingToolBar + hxBottomMargin);
         self.toolsView.frame = CGRectMake(0, self.view.hx_h - 50 - hxBottomMargin, self.view.hx_w, 50 + hxBottomMargin);
         
@@ -275,40 +269,33 @@
             self.editingView.hidden = YES;
         }
         self.photoEdit = self.photoModel.photoEdit;
-        if (self.editImage) {
-            self.editingView.image = self.editImage;
-            [self setupPhotoData];
-        }else {
-            [self setAsetImage];
-        }
+        self.editingView.image = self.editImage;
+        [self setupPhotoData];
     }else {
-        [self setAsetImage];
-    }
-}
-- (void)setAsetImage {
-    if (self.photoModel.asset ||
-        self.photoModel.cameraPhotoType == HXPhotoModelMediaTypeCameraPhotoTypeNetWork ||
-        self.photoModel.cameraPhotoType == HXPhotoModelMediaTypeCameraPhotoTypeNetWorkGif ||
-        self.photoModel.cameraPhotoType == HXPhotoModelMediaTypeCameraPhotoTypeLocalLivePhoto ||
-        self.photoModel.cameraPhotoType == HXPhotoModelMediaTypeCameraPhotoTypeNetWorkLivePhoto) {
-        [self requestImageData];
-    }else {
-        UIImage *image;
-        if (self.photoModel.thumbPhoto.images.count > 1) {
-            image = self.photoModel.thumbPhoto.images.firstObject;
+        if (self.photoModel.asset ||
+            self.photoModel.cameraPhotoType == HXPhotoModelMediaTypeCameraPhotoTypeNetWork ||
+            self.photoModel.cameraPhotoType == HXPhotoModelMediaTypeCameraPhotoTypeNetWorkGif ||
+            self.photoModel.cameraPhotoType == HXPhotoModelMediaTypeCameraPhotoTypeLocalLivePhoto ||
+            self.photoModel.cameraPhotoType == HXPhotoModelMediaTypeCameraPhotoTypeNetWorkLivePhoto) {
+            [self requestImageData];
         }else {
-            image = self.photoModel.thumbPhoto;
-        }
-        CGSize imageSize = image.size;
-        if (imageSize.width * imageSize.height > 3 * 1000 * 1000) {
-            while (imageSize.width * imageSize.height > 3 * 1000 * 1000) {
-                imageSize.width /= 2;
-                imageSize.height /= 2;
+            UIImage *image;
+            if (self.photoModel.thumbPhoto.images.count > 1) {
+                image = self.photoModel.thumbPhoto.images.firstObject;
+            }else {
+                image = self.photoModel.thumbPhoto;
             }
-            image = [image hx_scaleToFillSize:imageSize];
+            CGSize imageSize = image.size;
+            if (imageSize.width * imageSize.height > 3 * 1000 * 1000) {
+                while (imageSize.width * imageSize.height > 3 * 1000 * 1000) {
+                    imageSize.width /= 2;
+                    imageSize.height /= 2;
+                }
+                image = [image hx_scaleToFillSize:imageSize];
+            }
+            self.editImage = image;
+            [self loadImageCompletion];
         }
-        self.editImage = image;
-        [self loadImageCompletion];
     }
 }
 - (void)setupPhotoData {
@@ -354,7 +341,7 @@
         [self loadImageCompletion];
         return;
     }
-    self.requestId = [self.photoModel requestImageDataWithLoadOriginalImage:YES startRequestICloud:^(PHImageRequestID iCloudRequestId, HXPhotoModel * _Nullable model) {
+    self.requestId = [self.photoModel requestImageDataStartRequestICloud:^(PHImageRequestID iCloudRequestId, HXPhotoModel * _Nullable model) {
         weakSelf.requestId = iCloudRequestId;
     } progressHandler:nil success:^(NSData * _Nullable imageData, UIImageOrientation orientation, HXPhotoModel * _Nullable model, NSDictionary * _Nullable info) {
         @autoreleasepool {
@@ -444,10 +431,6 @@
     self.transitionCompletion = YES;
     self.editingView.hidden = NO;
     if (self.photoModel.photoEdit) {
-        if (!self.editingView.image) {
-            self.editingView.image = self.editImage;
-            [self setupPhotoData];
-        }
         self.editingView.hidden = NO;
         if (self.onlyCliping) {
             [self.editingView setClipping:YES animated:YES];
@@ -466,7 +449,7 @@
     }
 }
 - (void)hiddenTopBottomView {
-    self.backBtn.hx_y = hxNavigationBarHeight - 20 - self.backBtn.hx_h - 15;
+    self.backBtn.hx_y = hxNavigationBarHeight - 20 - _backBtn.hx_h - 15;
     self.clippingToolBar.hx_y = self.view.hx_h;
     self.toolsView.hx_y = self.view.hx_h;
 //    self.topMaskView.hx_y = -hxNavigationBarHeight;
@@ -553,15 +536,14 @@
     
 }
 - (void)setEditImage:(UIImage *)editImage {
-//    if (!self.photoEdit) {
+    if (!self.photoEdit) {
         _editImage = HX_UIImageDecodedCopy(editImage);
-//    }
+    }
 }
 - (void)setPhotoEdit:(HXPhotoEdit *)photoEdit {
     _photoEdit = photoEdit;
     if (photoEdit) {
-        NSData *imageData = [NSData dataWithContentsOfFile:photoEdit.imagePath];
-        _editImage = [UIImage imageWithData:imageData];
+        _editImage = photoEdit.editImage;
         self.editData = photoEdit.editData;
     }
 }
@@ -580,16 +562,10 @@
     return _backBtn;
 }
 - (void)didBackClick {
-    self.isCancel = YES;
     if (self.cancelBlock) {
         self.cancelBlock(self);
     }
-    if ([self.delegate respondsToSelector:@selector(photoEditingControllerDidCancel:)]) {
-        [self.delegate photoEditingControllerDidCancel:self];
-    }
-    if (!self.isAutoBack) {
-        return;
-    }
+    self.isCancel = YES;
     if (self.navigationController.viewControllers.count <= 1) {
         [self dismissViewControllerAnimated:YES completion:nil];
     }else {
@@ -679,12 +655,7 @@
     void (^finishImage)(UIImage *) = ^(UIImage *image){
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             if (data) {
-                NSString *fileName = [[NSString hx_fileName] stringByAppendingString:@".jpg"];
-                NSString *fullPathToFile = [NSTemporaryDirectory() stringByAppendingPathComponent:fileName];
-                NSData *imageData = HX_UIImageJPEGRepresentation(weakSelf.editImage);
-                if ([imageData writeToFile:fullPathToFile atomically:YES]) {
-                    photoEdit = [[HXPhotoEdit alloc] initWithEditImagePath:fullPathToFile previewImage:image data:data];
-                }
+                photoEdit = [[HXPhotoEdit alloc] initWithEditImage:weakSelf.editImage previewImage:image data:data];
             }
             if (!photoEdit) {
                 [weakSelf.photoModel.photoEdit clearData];
@@ -728,9 +699,6 @@
 - (void)dissmissClick {
     [self.view hx_handleLoading:NO];
     self.view.userInteractionEnabled = YES;
-    if (!self.isAutoBack) {
-        return;
-    }
     if (self.navigationController.viewControllers.count <= 1) {
         [self dismissViewControllerAnimated:YES completion:nil];
     }else {
@@ -860,8 +828,9 @@
 }
 - (HXPhotoEditingView *)editingView {
     if (!_editingView) {
-        _editingView = [[HXPhotoEditingView alloc] initWithFrame:self.view.bounds config:self.configuration];
+        _editingView = [[HXPhotoEditingView alloc] initWithFrame:self.view.bounds];
         _editingView.onlyCliping = self.onlyCliping;
+        _editingView.configuration = self.configuration;
         _editingView.clippingDelegate = self;
         if (self.configuration.drawColors.count > self.configuration.defaultDarwColorIndex) {
             _editingView.clippingView.imageView.drawView.lineColor = self.configuration.drawColors[self.configuration.defaultDarwColorIndex];

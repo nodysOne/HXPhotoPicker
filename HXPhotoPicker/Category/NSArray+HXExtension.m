@@ -2,8 +2,8 @@
 //  NSArray+HXExtension.m
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2019/1/7.
-//  Copyright © 2019年 Silence. All rights reserved.
+//  Created by 洪欣 on 2019/1/7.
+//  Copyright © 2019年 洪欣. All rights reserved.
 //
 
 #import "NSArray+HXExtension.h"
@@ -46,9 +46,6 @@
             NSString *path = dict[key];
             UIImage *image = [self hx_disposeHEICWithPath:path];
             if (image) {
-                if (image.imageOrientation != UIImageOrientationUp) {
-                    image = [image hx_normalizedImage];
-                }
                 [dataArray addObject:image];
             }
         }else {
@@ -65,17 +62,11 @@
         NSString *key = (__bridge NSString *)kCGImageDestinationLossyCompressionQuality;
         NSData *jpgData = [context JPEGRepresentationOfImage:ciImage colorSpace:ciImage.colorSpace options:@{key : @1}];
         UIImage *image = [UIImage imageWithData:jpgData];
-        if (image.imageOrientation != UIImageOrientationUp) {
-            image = [image hx_normalizedImage];
-        }
         return image;
     }else {
         NSData *imageData = [NSData dataWithContentsOfFile:path];
         UIImage *image = [UIImage imageWithData:imageData];
         if (!image) {
-            if (image.imageOrientation != UIImageOrientationUp) {
-                image = [image hx_normalizedImage];
-            }
             image = [UIImage imageWithContentsOfFile:path];
         }
         return image;
@@ -281,27 +272,27 @@
             return;
         }
     }
-    if ((original && photoModel.type != HXPhotoModelMediaTypeVideo) ||
-        photoModel.type == HXPhotoModelMediaTypePhotoGif) {
-        // 如果选择了原图，就换一种获取方式
-        [photoModel getAssetURLWithSuccess:^(NSURL * _Nullable imageURL, HXPhotoModelMediaSubType mediaType, BOOL isNetwork, HXPhotoModel * _Nullable model) {
-            if (successful) {
-                successful(nil, imageURL, model);
-            }
-        } failed:^(NSDictionary * _Nullable info, HXPhotoModel * _Nullable model) {
-            if (failure) {
-                failure(model);
-            }
-        }];
-    }else {
+//    if ((original && photoModel.type != HXPhotoModelMediaTypeVideo) ||
+//        photoModel.type == HXPhotoModelMediaTypePhotoGif) {
+//        // 如果选择了原图，就换一种获取方式
+//        [photoModel requestImageURLStartRequestICloud:nil progressHandler:nil success:^(NSURL *imageURL, HXPhotoModel *model, NSDictionary *info) {
+//            if (successful) {
+//                successful(nil, imageURL, model);
+//            }
+//        } failed:^(NSDictionary *info, HXPhotoModel *model) {
+//            if (failure) {
+//                failure(model);
+//            }
+//        }];
+//    }else {
         [photoModel requestImageDataStartRequestICloud:nil progressHandler:nil success:^(NSData * _Nullable imageData, UIImageOrientation orientation, HXPhotoModel * _Nullable model, NSDictionary * _Nullable info) {
             UIImage *image = [UIImage imageWithData:imageData];
-            if (image.imageOrientation != UIImageOrientationUp) {
+            if (image.imageOrientation == UIImageOrientationUp) {
                 image = [image hx_normalizedImage];
             }
             // 不是原图那就压缩
             if (!original) {
-                image = [image hx_scaleImagetoScale:0.5f];
+                image = [image hx_scaleImagetoScale:0.6f];
             }
             if (successful) {
                 successful(image, nil, model);
@@ -317,7 +308,7 @@
                 }
             }
         }];
-    }
+//    }
 }
 
 - (void)hx_requestImageDataWithCompletion:(void (^)(NSArray<NSData *> * _Nullable imageDataArray))completion {

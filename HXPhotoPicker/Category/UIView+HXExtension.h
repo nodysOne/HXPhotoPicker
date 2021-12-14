@@ -2,8 +2,8 @@
 //  UIView+HXExtension.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 17/2/16.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 17/2/16.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -27,6 +27,7 @@
  */
 - (UIViewController *)hx_viewController;
 
+- (void)hx_showToast:(NSString *)message;
 - (void)hx_showImageHUDText:(NSString *)text;
 - (void)hx_showLoadingHUDText:(NSString *)text;
 - (void)hx_showLoadingHUDText:(NSString *)text delay:(NSTimeInterval)delay;

@@ -2,8 +2,8 @@
 //  HXPhotoEditStickerItemView.m
 //  photoEditDemo
 //
-//  Created by Silence on 2020/6/23.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by 洪欣 on 2020/6/23.
+//  Copyright © 2020 洪欣. All rights reserved.
 //
 
 #import "HXPhotoEditStickerItemView.h"
@@ -278,6 +278,9 @@
         if (self.touchBegan) {
             self.touchBegan(self);
         }
+        if (self.panBegan) {
+            self.panBegan();
+        }
         self.isSelected = YES;
         self.initialPoint = self.center;
     }else if (sender.state == UIGestureRecognizerStateChanged) {
@@ -321,6 +324,9 @@
     if(sender.state == UIGestureRecognizerStateBegan){
         self.firstTouch = YES;
         self.touching = YES;
+        if (self.pinchBegan) {
+            self.pinchBegan();
+        }
         if (self.touchBegan) {
             self.touchBegan(self);
         }
@@ -328,7 +334,10 @@
         self.initialScale = self.scale;
     } else if (sender.state == UIGestureRecognizerStateEnded ||
                sender.state == UIGestureRecognizerStateCancelled) {
-                self.touching = NO;
+                   self.touching = NO;
+        if (self.pinchEnded) {
+            self.pinchEnded();
+        }
         if (self.touchEnded) {
             self.touchEnded(self);
         }
@@ -347,6 +356,9 @@
         self.firstTouch = YES;
         self.touching = YES;
         self.isSelected = YES;
+        if (self.rotationBegan) {
+            self.rotationBegan();
+        }
         if (self.touchBegan) {
             self.touchBegan(self);
         }
@@ -355,6 +367,9 @@
     } else if (sender.state == UIGestureRecognizerStateEnded ||
                sender.state == UIGestureRecognizerStateCancelled) {
         self.touching = NO;
+        if (self.rotationEnded) {
+            self.rotationEnded();
+        }
         if (self.touchEnded) {
             self.touchEnded(self);
         }

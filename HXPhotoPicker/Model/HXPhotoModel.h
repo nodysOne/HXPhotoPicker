@@ -2,8 +2,8 @@
 //  HXPhotoModel.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 17/2/8.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 17/2/8.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -11,7 +11,6 @@
 
 @class HXPhotoManager;
 @class HXPhotoEdit;
-@class HXAssetURLResult;
 
 @interface HXPhotoModel : NSObject<NSCoding>
 /// 创建日期
@@ -252,12 +251,6 @@
                                                success:(HXModelImageDataSuccessBlock _Nullable)success
                                                 failed:(HXModelFailedBlock _Nullable)failed;
 
-- (PHImageRequestID)requestImageDataWithLoadOriginalImage:(BOOL)originalImage
-                                       startRequestICloud:(HXModelStartRequestICloud _Nullable)startRequestICloud
-                                          progressHandler:(HXModelProgressHandler _Nullable)progressHandler
-                                                  success:(HXModelImageDataSuccessBlock _Nullable)success
-                                                   failed:(HXModelFailedBlock _Nullable)failed;
-
 /// 请求获取AVAsset
 - (PHImageRequestID)requestAVAssetStartRequestICloud:(HXModelStartRequestICloud _Nullable)startRequestICloud
                                      progressHandler:(HXModelProgressHandler _Nullable)progressHandler
@@ -325,22 +318,6 @@
 - (void)getAssetURLWithVideoPresetName:(NSString * _Nullable)presetName
                                success:(HXModelURLHandler _Nullable)success
                                 failed:(HXModelFailedBlock _Nullable)failed;
-
-/// 获取原视频地址
-- (void)getVideoURLWithSuccess:(HXModelURLHandler _Nullable)success
-                        failed:(HXModelFailedBlock _Nullable)failed;
-
-/// 获取图片地址
-/// @param resultHandler 获取结果
-- (void)getImageURLWithResultHandler:(void (^ _Nullable)(HXAssetURLResult * _Nullable result, HXPhotoModel * _Nonnull photoModel))resultHandler;
-
-/// 获取视频地址
-/// @param exportPreset 导出的视频分辨率, HXVideoExportPresetRatio_Original 为获取原始视频
-/// @param videoQuality 导出的视频质量 [1-10]
-/// @param resultHandler 导出结果
-- (void)getVideoURLWithExportPreset:(HXVideoExportPreset)exportPreset
-                       videoQuality:(NSInteger)videoQuality
-                      resultHandler:(void (^ _Nullable)(HXAssetURLResult * _Nullable result, HXPhotoModel * _Nonnull photoModel))resultHandler;
 
 @property (assign, nonatomic) CGFloat previewContentOffsetX;
 

@@ -2,13 +2,12 @@
 //  HXCustomNavigationController.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2017/10/31.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 2017/10/31.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 #import "HXPhotoManager.h"
-#import "HXPickerResult.h"
 @class HXPhotoModel, HXCustomNavigationController;
 
 @protocol HXCustomNavigationControllerDelegate <NSObject>
@@ -27,9 +26,6 @@
                                photos:(NSArray<HXPhotoModel *> *)photoList
                                videos:(NSArray<HXPhotoModel *> *)videoList
                              original:(BOOL)original;
-
-- (void)photoNavigationViewController:(HXCustomNavigationController *)photoNavigationViewController
-                      didDoneWithResult:(HXPickerResult *)result;
 
 /**
  点击取消

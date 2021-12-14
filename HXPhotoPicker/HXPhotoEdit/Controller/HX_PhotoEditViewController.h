@@ -2,8 +2,8 @@
 //  HX_PhotoEditViewController.h
 //  photoEditDemo
 //
-//  Created by Silence on 2020/6/20.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by 洪欣 on 2020/6/20.
+//  Copyright © 2020 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -81,7 +81,6 @@ typedef void (^ HX_PhotoEditViewControllerDidCancelBlock)(HX_PhotoEditViewContro
 - (void)hideImageView;
 - (void)hiddenTopBottomView;
 - (void)showTopBottomView;
-@property (assign, nonatomic) BOOL isAutoBack;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -2,8 +2,8 @@
 //  HXPhotoPreviewVideoViewCell.m
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2019/12/5.
-//  Copyright © 2019 Silence. All rights reserved.
+//  Created by 洪欣 on 2019/12/5.
+//  Copyright © 2019 洪欣. All rights reserved.
 //
 
 #import "HXPhotoPreviewVideoViewCell.h"
@@ -47,10 +47,8 @@
             }
             [weakSelf refreshImageSize];
         };
-        self.previewContentView.videoView.changeSliderHidden = ^(BOOL isHidden) {
-            [UIView animateWithDuration:0.25 animations:^{
-                weakSelf.bottomSliderView.alpha = isHidden ? 0 : 1;
-            }];
+        self.previewContentView.videoView.playFinshed = ^{
+            [weakSelf.bottomSliderView setPlayBtnSelected:NO];
         };
         [self.scrollView addSubview:self.previewContentView];
         [self.contentView addSubview:self.bottomSliderView];
@@ -75,6 +73,8 @@
         HXWeakSelf
         _bottomSliderView.didPlayBtnBlock = ^(BOOL isPlay) {
             [weakSelf.previewContentView.videoView didPlayBtnClickWithSelected:isPlay];
+            [weakSelf.previewContentView.videoView setPlayBtnHidden:isPlay];
+            [weakSelf requestHDImage];
         };
         _bottomSliderView.sliderChangedValueBlock = ^(CGFloat value, HXPreviewVideoSliderType type) {
             [weakSelf.previewContentView.videoView changePlayerTimeWithValue:value type:type];
@@ -85,7 +85,7 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown || HX_UI_IS_IPAD) {
+    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown) {
         CGFloat sliderY = HX_IS_IPHONEX ? self.hx_h - hxBottomMargin - 50 : self.hx_h - 50;
         if (self.didAddBottomPageControl) {
             sliderY -= HX_IS_IPHONEX ? 10 : 30;

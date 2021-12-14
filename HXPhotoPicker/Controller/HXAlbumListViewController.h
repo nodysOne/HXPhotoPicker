@@ -2,14 +2,13 @@
 //  HXDateAlbumViewController.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2017/10/14.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 2017/10/14.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 #import "HXAlbumModel.h"
-#import "HXPhotoManager.h"
-#import "HXPickerResult.h"
+#import "HXPhotoManager.h" 
 
 @class HXAlbumListViewController;
 
@@ -37,9 +36,6 @@
                          photos:(NSArray<HXPhotoModel *> *)photoList
                          videos:(NSArray<HXPhotoModel *> *)videoList
                        original:(BOOL)original;
-
-- (void)albumListViewController:(HXAlbumListViewController *)albumListViewController
-              didDoneWithResult:(HXPickerResult *)result;
 
 - (void)albumListViewControllerFinishDismissCompletion:(HXAlbumListViewController *)albumListViewController;
 - (void)albumListViewControllerCancelDismissCompletion:(HXAlbumListViewController *)albumListViewController;

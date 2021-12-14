@@ -2,8 +2,8 @@
 //  HXPhotoEditStickerTrashView.m
 //  photoEditDemo
 //
-//  Created by Silence on 2020/6/27.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by 洪欣 on 2020/6/27.
+//  Copyright © 2020 洪欣. All rights reserved.
 //
 
 #import "HXPhotoEditStickerTrashView.h"
@@ -39,12 +39,12 @@
         self.imageView.image = [UIImage hx_imageContentsOfFile:@"hx_photo_edit_trash_open"];
         self.redView.hidden = NO;
         self.visualView.hidden = YES;
-        self.titleLb.text = [NSBundle hx_localizedStringForKey:@"松手即可删除"];
+        self.titleLb.text = @"松手即可删除";
     }else {
         self.imageView.image = [UIImage hx_imageContentsOfFile:@"hx_photo_edit_trash_close"];
         self.redView.hidden = YES;
         self.visualView.hidden = NO;
-        self.titleLb.text = [NSBundle hx_localizedStringForKey:@"拖动到此处删除"];
+        self.titleLb.text = @"拖动到此处删除";
     }
 }
 

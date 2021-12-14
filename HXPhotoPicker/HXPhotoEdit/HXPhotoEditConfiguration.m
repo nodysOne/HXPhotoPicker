@@ -2,8 +2,8 @@
 //  HXPhotoEditConfiguration.m
 //  photoEditDemo
 //
-//  Created by Silence on 2020/7/6.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by 洪欣 on 2020/7/6.
+//  Copyright © 2020 洪欣. All rights reserved.
 //
 
 #import "HXPhotoEditConfiguration.h"
@@ -15,8 +15,6 @@
     if (self) {
         self.maximumLimitTextLength = 0;
         self.supportRotation = YES;
-        self.clippingMinSize = CGSizeMake(80, 80);
-        self.supportedInterfaceOrientations = UIInterfaceOrientationMaskPortrait;
     }
     return self;
 }

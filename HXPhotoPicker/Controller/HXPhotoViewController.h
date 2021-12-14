@@ -2,15 +2,14 @@
 //  HXPhotoViewController.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2017/10/14.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 2017/10/14.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
+#import "HXBaseViewController.h"
 #import "HXPhotoManager.h"
 #import "HXCustomCollectionReusableView.h"
-#import "HXPhotoLimitView.h"
-#import "HXPickerResult.h"
 
 @class
 HXPhotoViewController ,
@@ -44,9 +43,6 @@ HXCustomCameraController;
                      videos:(NSArray<HXPhotoModel *> *)videoList
                    original:(BOOL)original;
 
-- (void)photoViewController:(HXPhotoViewController *)photoViewController
-          didDoneWithResult:(HXPickerResult *)result;
-
 /**
  改变了选择
 
@@ -60,14 +56,13 @@ HXCustomCameraController;
 - (void)photoViewControllerCancelDismissCompletion:(HXPhotoViewController *)photoViewController;
 @end
 
-@interface HXPhotoViewController : UIViewController
+@interface HXPhotoViewController : HXBaseViewController
 @property (copy, nonatomic) viewControllerDidDoneBlock doneBlock;
 @property (copy, nonatomic) viewControllerDidCancelBlock cancelBlock;
 @property (weak, nonatomic) id<HXPhotoViewControllerDelegate> delegate;
 @property (strong, nonatomic) HXPhotoManager *manager;
 @property (strong, nonatomic) HXAlbumModel *albumModel;
 @property (strong, nonatomic) HXPhotoBottomView *bottomView;
-@property (strong, nonatomic) HXPhotoLimitView *limitView;
 - (HXPhotoViewCell *)currentPreviewCell:(HXPhotoModel *)model;
 - (BOOL)scrollToModel:(HXPhotoModel *)model;
 - (void)scrollToPoint:(HXPhotoViewCell *)cell rect:(CGRect)rect;
@@ -113,18 +108,6 @@ HXCustomCameraController;
 @property (strong, nonatomic) UIColor *bgColor;
 - (void)starRunning;
 - (void)stopRunning;
-@end
-
-@interface HXPhotoLimitViewCell : UICollectionViewCell
-@property (strong, nonatomic) UIColor *bgColor;
-@property (strong, nonatomic) UIColor *bgDarkColor;
-@property (strong, nonatomic) UIColor *lineColor;
-@property (strong, nonatomic) UIColor *lineDarkColor;
-@property (strong, nonatomic) UIColor *textColor;
-@property (strong, nonatomic) UIColor *textDarkColor;
-@property (strong, nonatomic) UIFont *textFont;
-
-- (void)config;
 @end
 
 @interface HXPhotoViewSectionFooterView : UICollectionReusableView

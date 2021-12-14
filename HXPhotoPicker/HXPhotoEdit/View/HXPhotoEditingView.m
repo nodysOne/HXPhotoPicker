@@ -2,8 +2,8 @@
 //  HXPhotoEditingView.m
 //  photoEditDemo
 //
-//  Created by Silence on 2020/6/29.
-//  Copyright © 2020 Silence. All rights reserved.
+//  Created by 洪欣 on 2020/6/29.
+//  Copyright © 2020 洪欣. All rights reserved.
 //
 
 #import "HXPhotoEditingView.h"
@@ -79,14 +79,14 @@ NSString *const kHXEditingViewData_clippingView = @"kHXEditingViewData_clippingV
 
 @synthesize image = _image;
 
-- (instancetype)initWithFrame:(CGRect)frame config:(HXPhotoEditConfiguration *)config {
+- (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        [self setup:config];
+        [self setup];
     }
     return self;
 }
-- (void)setup:(HXPhotoEditConfiguration *)config {
+- (void)setup {
     self.firstShow = YES;
     self.scrollsToTop = NO;
     self.showsHorizontalScrollIndicator = NO;
@@ -109,7 +109,7 @@ NSString *const kHXEditingViewData_clippingView = @"kHXEditingViewData_clippingV
     _editToolbarDefaultHeight = 110.f;
     _defaultMaximumZoomScale = HXMaxZoomScale;
     
-    /** 创建缩放层，避免直接缩放，会改变其transform */
+    /** 创建缩放层，避免直接缩放LFClippingView，会改变其transform */
     UIView *clipZoomView = [[UIView alloc] initWithFrame:self.bounds];
     clipZoomView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     clipZoomView.backgroundColor = [UIColor clearColor];
@@ -129,7 +129,7 @@ NSString *const kHXEditingViewData_clippingView = @"kHXEditingViewData_clippingV
     [self addSubview:gridView];
     self.gridView = gridView;
     
-    self.clippingMinSize = config.clippingMinSize;
+    self.clippingMinSize = CGSizeMake(80, 80);
     self.clippingMaxRect = [self refer_clippingRect];
     
     /** 创建显示图片像素控件 */
@@ -149,7 +149,6 @@ NSString *const kHXEditingViewData_clippingView = @"kHXEditingViewData_clippingV
     self.imagePixel = imagePixel;
      
     [self setSubViewData];
-    self.configuration = config;
 }
 
 - (void)changeSubviewFrame {

@@ -2,8 +2,8 @@
 //  HXPhotoConfiguration.h
 //  HXPhotoPickerExample
 //
-//  Created by Silence on 2017/11/21.
-//  Copyright © 2017年 Silence. All rights reserved.
+//  Created by 洪欣 on 2017/11/21.
+//  Copyright © 2017年 洪欣. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -25,9 +25,6 @@ HXPhotoPreviewViewController;
 
 /// 查看LivePhoto是否自动播放，为NO时需要长按才可播放
 @property (assign, nonatomic) BOOL livePhotoAutoPlay;
-
-/// 预览大图时允许不先加载小图，直接加载原图
-@property (assign, nonatomic) BOOL allowPreviewDirectLoadOriginalImage;
 
 /// 允许滑动的方式选择资源 - 默认允许
 /// 类似系统相册和QQ滑动选择逻辑
@@ -171,12 +168,7 @@ HXPhotoPreviewViewController;
 
 /// 导出裁剪视频的质量
 /// iPhoneX -> AVAssetExportPresetHighestQuality
-@property (copy, nonatomic) NSString *editVideoExportPresetName DEPRECATED_MSG_ATTRIBUTE("Invalid attribute, use editVideoExportPreset and videoQuality");
-
-/// 导出裁剪视频的分辨率 默认 HXVideoEditorExportPresetRatio_960x540
-@property (assign, nonatomic) HXVideoEditorExportPreset editVideoExportPreset;
-/// 导出裁剪视频的质量[0-10] 默认 6
-@property (assign, nonatomic) NSInteger videoQuality;
+@property (copy, nonatomic) NSString *editVideoExportPresetName;
 
 /// 编辑视频时裁剪的最小秒数，如果小于1秒，则为1秒
 @property (assign, nonatomic) NSInteger minVideoClippingTime;
@@ -190,6 +182,10 @@ HXPhotoPreviewViewController;
 /// yes -> use HXPhotoView preview
 /// no  -> use HXPhotoViewController preview
 @property (copy, nonatomic) void (^ previewRespondsToLongPress)(UILongPressGestureRecognizer *longPress, HXPhotoModel *photoModel, HXPhotoManager *manager, HXPhotoPreviewViewController *previewViewController);
+
+
+/// 更多图片
+@property (copy, nonatomic) void (^ previewRespondsToMore)(UIButton *moreBtn, HXPhotoModel *photoModel, HXPhotoManager *manager, HXPhotoPreviewViewController *previewViewController);
 
 /// 语言类型
 @property (assign, nonatomic) HXPhotoLanguageType languageType;
@@ -278,30 +274,6 @@ HXPhotoPreviewViewController;
 @property (copy, nonatomic) void (^useCameraComplete)(HXPhotoModel *model);
 
 #pragma mark - < UI相关 >
-
-/// 相册权限为选择部分时，照片列表添加cell的背景颜色
-@property (strong, nonatomic) UIColor *photoListLimitCellBackgroundColor;
-/// 相册权限为选择部分时，照片列表添加cell暗黑模式下的背景颜色
-@property (strong, nonatomic) UIColor *photoListLimitCellBackgroundDarkColor;
-/// 相册权限为选择部分时，照片列表添加cell的加号颜色
-@property (strong, nonatomic) UIColor *photoListLimitCellLineColor;
-/// 相册权限为选择部分时，照片列表添加cell暗黑模式下的加号颜色
-@property (strong, nonatomic) UIColor *photoListLimitCellLineDarkColor;
-/// 相册权限为选择部分时，照片列表添加cell的文字颜色
-@property (strong, nonatomic) UIColor *photoListLimitCellTextColor;
-/// 相册权限为选择部分时，照片列表添加cell暗黑模式下的文字颜色
-@property (strong, nonatomic) UIColor *photoListLimitCellTextDarkColor;
-/// 相册权限为选择部分时，照片列表添加cell的文字字体
-@property (strong, nonatomic) UIFont *photoListLimitCellTextFont;
-
-/// 限制提示视图：背景样式
-@property (assign, nonatomic) UIBlurEffectStyle photoListLimitBlurStyle;
-/// 限制提示视图：文本颜色
-@property (strong, nonatomic) UIColor *photoListLimitTextColor;
-/// 限制提示视图：设置按钮颜色
-@property (strong, nonatomic) UIColor *photoListLimitSettingColor;
-/// 限制提示视图：关闭按钮颜色
-@property (strong, nonatomic) UIColor *photoListLimitCloseColor;
 
 /// 照片列表上相机cell上的相机未预览时的图标
 @property (copy, nonatomic) NSString *photoListTakePhotoNormalImageNamed;
@@ -522,6 +494,9 @@ HXPhotoPreviewViewController;
 
 /// 预览界面底部已选照片的选中颜色
 @property (strong, nonatomic) UIColor *previewBottomSelectColor;
+
+/// 预览界面底部已选照片的选中边框宽度
+@property (nonatomic, assign) CGFloat previewBottomSelectBorderWidth;
 
 /// 是否可以改变原图按钮的tinColor
 @property (assign, nonatomic) BOOL changeOriginalTinColor;
