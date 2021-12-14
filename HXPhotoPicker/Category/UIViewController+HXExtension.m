@@ -8,7 +8,7 @@
 
 #import "UIViewController+HXExtension.h"
 #import "HXPhotoPicker.h"
-#import <LUINavigationController_OC.h>
+#import "LUINavigationController_OC.h"
 
 @implementation UIViewController (HXExtension)
 - (void)hx_presentAlbumListViewControllerWithManager:(HXPhotoManager *)manager

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <PhotosUI/PhotosUI.h>
-#import <LUIViewController_OC.h>
+#import "LUIViewController_OC.h"
 #import "HXPhotoManager.h"
 #import "HXPhotoView.h"
 #import "HXPhotoPreviewImageViewCell.h"
