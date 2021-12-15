@@ -2,8 +2,8 @@
 //  HXPhotoEditChartletContentViewCell.m
 //  photoEditDemo
 //
-//  Created by 洪欣 on 2020/7/2.
-//  Copyright © 2020 洪欣. All rights reserved.
+//  Created by Silence on 2020/7/2.
+//  Copyright © 2020 Silence. All rights reserved.
 //
 
 #import "HXPhotoEditChartletContentViewCell.h"
@@ -29,7 +29,7 @@
     }
     CGFloat width;
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown) {
+    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown || HX_UI_IS_IPAD) {
         width = (HX_ScreenWidth - 5 * 20) / 4;
         self.flowLayout.sectionInset = UIEdgeInsetsMake(75, 20, 20, 20);
     }else {

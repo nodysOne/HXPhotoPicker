@@ -2,8 +2,8 @@
 //  HXPhotoEditSplashView.m
 //  photoEditDemo
 //
-//  Created by 洪欣 on 2020/7/1.
-//  Copyright © 2020 洪欣. All rights reserved.
+//  Created by Silence on 2020/7/1.
+//  Copyright © 2020 Silence. All rights reserved.
 //
 
 #import "HXPhotoEditSplashView.h"
@@ -167,7 +167,6 @@ NSString *const kHXSplashViewData_frameArray = @"HXSplashViewData_frameArray";
             NSValue *value = [NSValue valueWithCGPoint:mosaicPoint];
             if (![self.frameArray containsObject:value]) {
                 [self.frameArray addObject:value];
-                //2、创建LFSplashBlur
                 HXPhotoEditSplashBlur *blur = [HXPhotoEditSplashBlur new];
                 blur.rect = CGRectMake(mosaicPoint.x, mosaicPoint.y, self.squareWidth, self.squareWidth);
                 if (self.splashColor) {
@@ -181,7 +180,6 @@ NSString *const kHXSplashViewData_frameArray = @"HXSplashViewData_frameArray";
         } else if (self.state == HXPhotoEditSplashStateType_Paintbrush) {
             /** 限制绘画的间隙 */
             if (CGRectContainsPoint(prevBlur.rect, point) == NO) {
-                //2、创建LFSplashBlur
                 HXPhotoEditSplashImageBlur *blur = [HXPhotoEditSplashImageBlur new];
                 blur.imageName = @"hx_photo_edit_mosaic_brush";
                 if (self.splashColor) {

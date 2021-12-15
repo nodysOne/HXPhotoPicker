@@ -2,8 +2,8 @@
 //  HXCustomCameraController.h
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2017/10/31.
-//  Copyright © 2017年 洪欣. All rights reserved.
+//  Created by Silence on 2017/10/31.
+//  Copyright © 2017年 Silence. All rights reserved.
 //
 
 #import <AVFoundation/AVFoundation.h>
@@ -29,7 +29,7 @@
 
 /// 相机界面默认前置摄像头
 @property (assign, nonatomic) BOOL defaultFrontCamera;
-
+@property (assign, nonatomic) NSTimeInterval videoMaximumDuration;
 - (void)initSeesion;
 - (void)setupPreviewLayer:(AVCaptureVideoPreviewLayer *)previewLayer startSessionCompletion:(void (^)(BOOL success))completion;
 

@@ -2,8 +2,8 @@
 //  HXPhotoDefine.h
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2017/11/24.
-//  Copyright © 2017年 洪欣. All rights reserved.
+//  Created by Silence on 2017/11/24.
+//  Copyright © 2017年 Silence. All rights reserved.
 //
 
 #ifndef HXPhotoDefine_h
@@ -11,10 +11,9 @@
 
 #import <CommonCrypto/CommonDigest.h>
 #import "NSBundle+HXPhotoPicker.h"
-#import <UIKit/UIKit.h>
 
 /// 当前版本
-#define HXVersion @"3.1.5"
+#define HXVersion @"3.3.0"
 
 // 日志输出
 #ifdef DEBUG
@@ -24,6 +23,7 @@
 #endif
 
 /// 如果想要HXPhotoView的item大小自定义设置，请修改为 1
+/// 如果为pod导入的话，请使用  pod 'HXPhotoPicker/CustomItem'
 /// 并且实现HXPhotoView的代理
 /// - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath isAddItem:(BOOL)isAddItem photoView:(HXPhotoView *)photoView
 /// 如果不实现此代理，item的小大将默认 (100, 100)
@@ -66,7 +66,7 @@
 
 #define HXShowLog NO
 
-#define HX_UI_IS_IPAD ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+#define HX_UI_IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 
 #define HX_ALLOW_LOCATION ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"] || [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"])
 
@@ -84,9 +84,6 @@
 
 #define HX_ScreenWidth [UIScreen mainScreen].bounds.size.width
 #define HX_ScreenHeight [UIScreen mainScreen].bounds.size.height
-#define HX_Width(width) (HX_ScreenWidth/375.0*width/2.0)
-#define HX_Height(height) (HX_ScreenWidth/375.0*height/2.0)
-#define HX_FontSize(fontSize) (HX_ScreenWidth/375.0*fontSize/2.0)
 
 #define HX_IS_IPHONEX (CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(375, 812)) || CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(812, 375)) || CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(414, 896)) || CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(896, 414)))
 
@@ -114,7 +111,7 @@
 #define HX_IS_IPhoneX_All (HX_Is_iPhoneX || HX_Is_iPhoneXR || HX_Is_iPhoneXS || HX_Is_iPhoneXS_MAX || HX_IS_IPHONEX || HX_Is_iPhoneTwelveMini || HX_Is_iPhoneTwelvePro || HX_Is_iPhoneTwelveProMax)
 
 // 导航栏 + 状态栏 的高度
-#define hxNavigationBarHeight (44 + HXStatusBarHeight)
+#define hxNavigationBarHeight ((HX_UI_IS_IPAD ? 50 : 44) + HXStatusBarHeight)
 #define hxTopMargin (HX_IS_IPhoneX_All ? 44 : 0)
 #define hxBottomMargin (HX_IS_IPhoneX_All ? 34 : 0)
 #define HXStatusBarHeight [HXPhotoTools getStatusBarHeight]

@@ -2,8 +2,8 @@
 //  HXVideoEditViewController.m
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2017/12/31.
-//  Copyright © 2017年 洪欣. All rights reserved.
+//  Created by Silence on 2017/12/31.
+//  Copyright © 2017年 Silence. All rights reserved.
 //
 
 #import "HXVideoEditViewController.h"
@@ -148,6 +148,7 @@ HXVideoEditBottomViewDelegate
         w = width;
         h = imgHeight;
     }
+    
     return CGRectMake(hxValidRectX + (videoW - w) / 2, hxVideoY + (videoH - h) / 2, w, h);
 }
 - (void)changeSubviewFrame {
@@ -375,7 +376,7 @@ HXVideoEditBottomViewDelegate
     [self.view hx_showLoadingHUDText:[NSBundle hx_localizedStringForKey:@"处理中"]];
     self.bottomView.userInteractionEnabled = NO;
     HXWeakSelf
-    [HXPhotoTools exportEditVideoForAVAsset:self.avAsset timeRange:[self getTimeRange] presetName:self.manager.configuration.editVideoExportPresetName success:^(NSURL *videoURL) {
+    [HXPhotoTools exportEditVideoForAVAsset:self.avAsset timeRange:[self getTimeRange] exportPreset:self.manager.configuration.editVideoExportPreset videoQuality:self.manager.configuration.videoQuality success:^(NSURL *videoURL) {
         if (weakSelf.manager.configuration.editAssetSaveSystemAblum) {
             [HXPhotoTools saveVideoToCustomAlbumWithName:weakSelf.manager.configuration.customAlbumName videoURL:videoURL location:weakSelf.model.location complete:^(HXPhotoModel * _Nullable model, BOOL success) {
                 weakSelf.bottomView.userInteractionEnabled = YES;
@@ -1062,7 +1063,7 @@ HXEditFrameViewDelegate
     left.size.width += hxImageWidth * 4;
     CGRect right = self.rightImageView.frame;
     right.origin.x -= hxImageWidth * 2;
-    right.size.width = hxImageWidth * 4;
+    right.size.width += hxImageWidth * 4;
     
     if (CGRectContainsPoint(left, point)) {
         return self.leftImageView;

@@ -2,8 +2,8 @@
 //  HXPhotoEditingView.h
 //  photoEditDemo
 //
-//  Created by 洪欣 on 2020/6/29.
-//  Copyright © 2020 洪欣. All rights reserved.
+//  Created by Silence on 2020/6/29.
+//  Copyright © 2020 Silence. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface HXPhotoEditingView : UIScrollView
-
+- (instancetype)initWithFrame:(CGRect)frame config:(HXPhotoEditConfiguration *)config;
 @property (nonatomic, weak, readonly) HXPhotoClippingView *clippingView;
 @property (nonatomic, weak, readonly) UIView *clipZoomView;
 @property (nonatomic, strong) UIImage *image;

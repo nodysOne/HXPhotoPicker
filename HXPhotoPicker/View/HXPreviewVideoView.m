@@ -2,8 +2,8 @@
 //  HXPreviewVideoView.m
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2019/11/15.
-//  Copyright © 2019 洪欣. All rights reserved.
+//  Created by Silence on 2019/11/15.
+//  Copyright © 2019 Silence. All rights reserved.
 //
 
 #import "HXPreviewVideoView.h"
@@ -16,7 +16,6 @@
 #import "HXPhotoTools.h"
 #import "UIButton+HXExtension.h"
 #import "HXPhotoBottomSelectView.h"
-//#import "NIMKitFileLocationHelper.h"swf
 
 @interface HXPreviewVideoView ()
 @property (strong, nonatomic) AVPlayer *player;
@@ -27,9 +26,10 @@
 @property (assign, nonatomic) NSTimeInterval videoTotalDuration;
 @property (assign, nonatomic) NSTimeInterval videoCurrentTime;
 @property (assign, nonatomic) BOOL videoManualPause;
+@property (strong, nonatomic) HXHUD *loadingView;
 @property (strong, nonatomic) HXHUD *loadFailedView;
 @property (assign, nonatomic) BOOL videoLoadFailed;
-@property (strong, nonatomic) UIActivityIndicatorView *loading;
+
 @property (strong, nonatomic) UIButton *playBtn;
 @property (assign, nonatomic) BOOL isDismiss;
 
@@ -52,9 +52,10 @@
     return self;
 }
 - (void)setup {
+    self.playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    self.playerLayer.player = self.player;
     self.videoManualPause = NO;
     self.layer.masksToBounds = YES;
-    [self.layer addSublayer:self.playerLayer];
     [self addSubview:self.playBtn];
     
     
@@ -75,14 +76,6 @@
     };
 #endif
 }
-
-//(lldb) po outputPath
-///var/mobile/Containers/Data/Application/BFC6BA43-ED44-49DC-A6AD-9AC34EC13F3A/Documents/8fc95f505b6cbaedf613677c8e08fc0b/lilei/video/9a90e56fc84649049cb354ae5861d6fb.mp4
-//
-//(lldb) po inputURL
-//file:///private/var/mobile/Containers/Data/Application/BFC6BA43-ED44-49DC-A6AD-9AC34EC13F3A/tmp/64492637728__B016DE02-C113-42AB-8994-D06FA0BDB2F8.MOV
-
-//file:///var/mobile/Containers/Data/Application/84465BFE-63FB-485A-9302-2E7CD6B88850/Library/Caches/com.silence.hxphotopicker/download/videos/edac3d9aef428edb4655c5aea77f119a.mp4"
 
 - (void)setModel:(HXPhotoModel *)model {
     _model = model;
@@ -108,7 +101,7 @@
                 if (![videoURL.absoluteString isEqualToString:weakSelf.model.videoURL.absoluteString]) {
                     return;
                 }
-                [weakSelf requestAVAssetComplete:[AVAsset assetWithURL:videoURL]];
+                [weakSelf requestAVAssetComplete:[AVAsset assetWithURL:videoFileURL]];
             } downloadFailure:^(NSError * _Nullable error, NSURL * _Nullable videoURL) {
                 if (![videoURL.absoluteString isEqualToString:weakSelf.model.videoURL.absoluteString]) {
                     return;
@@ -145,7 +138,7 @@
 }
 - (void)requestAVAssetComplete:(AVAsset *)avAsset {
     [[AVAudioSession sharedInstance] setActive:YES error:nil];
-    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategorySoloAmbient error: nil];
+    [[AVAudioSession sharedInstance] setCategory: [HXPhotoCommon photoCommon].audioSessionCategory error: nil];
     self.avAsset = avAsset;
     AVPlayerItem *playerItem = [AVPlayerItem playerItemWithAsset:avAsset];
     [self.player replaceCurrentItemWithPlayerItem:playerItem];
@@ -189,13 +182,14 @@
     self.stopCancel = NO;
 }
 - (void)pausePlayerAndShowNaviBar {
-    [self.player.currentItem seekToTime:CMTimeMake(0, 1) completionHandler:nil];
-    self.isPlayer = NO;
-    [self.player pause];
-    [self setPlayBtnHidden:NO];
-    if (self.playFinshed) {
-        self.playFinshed();
+    [self.player.currentItem seekToTime:CMTimeMake(0, 1)];
+    if ([HXPhotoCommon photoCommon].videoAutoPlayType == HXVideoAutoPlayTypeOnce) {
+        self.isPlayer = NO;
+        self.playBtn.hidden = NO;
+        return;
     }
+    [self.player play];
+    self.isPlayer = YES;
 }
 - (void)addPlayerObservers {
     self.canRemovePlayerObservers = YES;
@@ -299,7 +293,8 @@
                         self.playBtn.hidden = NO;
                     }
 #endif
-                }else if ([HXPhotoCommon photoCommon].videoAutoPlayType == HXVideoAutoPlayTypeAll) {
+                }else if ([HXPhotoCommon photoCommon].videoAutoPlayType == HXVideoAutoPlayTypeAll ||
+                          [HXPhotoCommon photoCommon].videoAutoPlayType == HXVideoAutoPlayTypeOnce) {
                     [self videoDidPlay];
                     self.playBtnDidPlay = YES;
                 }else {
@@ -311,7 +306,6 @@
                     self.shouldPlayVideo();
                 }
                 self.playerLayer.hidden = NO;
-                [self hideLoading];
             }
         }
     }
@@ -406,20 +400,25 @@
 }
 - (void)showOtherView {
     self.isDismiss = NO;
+    self.changeSliderHidden(NO);
     [UIView animateWithDuration:0.2 animations:^{
         self.loadFailedView.alpha = 1;
+        self.loadingView.alpha = 1;
         self.playBtn.alpha = 1;
     }];
 }
 - (void)hideOtherView:(BOOL)animatoin {
     self.isDismiss = YES;
+    self.changeSliderHidden(YES);
     if (!animatoin) {
+        self.loadingView.hidden = YES;
         self.loadFailedView.hidden = YES;
         self.playBtn.hidden = YES;
         return;
     }
     [UIView animateWithDuration:0.2 animations:^{
         self.loadFailedView.alpha = 0;
+        self.loadingView.alpha = 0;
         self.playBtn.alpha = 0;
     }];
 }
@@ -446,13 +445,11 @@
         self.playBtn.hidden = YES;
     }
 }
++ (Class)layerClass {
+    return AVPlayerLayer.class;
+}
 - (AVPlayerLayer *)playerLayer {
-    if (!_playerLayer) {
-        _playerLayer = [[AVPlayerLayer alloc] init];
-        _playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        _playerLayer.player = self.player;
-    }
-    return _playerLayer;
+    return (AVPlayerLayer *)self.layer;
 }
 - (AVPlayer *)player {
     if (!_player) {
@@ -460,25 +457,19 @@
     }
     return _player;
 }
-
-- (UIActivityIndicatorView *)loading {
-    if (!_loading) {
-        _loading = [[UIActivityIndicatorView alloc] init];
-        _loading.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
-        _loading.center = self.center;
-        [self addSubview:_loading];
+- (HXHUD *)loadingView {
+    if (!_loadingView) {
+        _loadingView = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, 95, 95) imageName:nil text:nil];
+        [_loadingView showloading];
     }
-    return _loading;
+    return _loadingView;
 }
-
 - (void)showLoading {
-    [self.loading startAnimating];
+    [self addSubview:self.loadingView];
 }
-
 - (void)hideLoading {
-    [self.loading stopAnimating];
+    [self.loadingView removeFromSuperview];
 }
-
 - (HXHUD *)loadFailedView {
     if (!_loadFailedView) {
         NSString *text = @"视频加载失败!";
@@ -490,7 +481,7 @@
             hudW = 100;
         }
         CGFloat hudH = [UILabel hx_getTextHeightWithText:text width:hudW fontSize:14];
-        _loadFailedView = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, hudW + 20, 130 + hudH) imageName:@"hx_alert_failed" text:text];
+        _loadFailedView = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, hudW + 20, 110 + hudH - 15) imageName:@"hx_alert_failed" text:text];
     }
     return _loadFailedView;
 }
@@ -502,12 +493,10 @@
 }
 - (void)layoutSubviews {
     [super layoutSubviews];
-    if (!CGRectEqualToRect(self.playerLayer.frame, self.bounds)) {
-        [CATransaction begin];
-        [CATransaction setDisableActions:YES];
-        self.playerLayer.frame = self.bounds;
-        [CATransaction commit];
-    }
+    self.playerLayer.frame = self.bounds;
+    
+    self.loadingView.hx_centerX = self.hx_w / 2;
+    self.loadingView.hx_centerY = self.hx_h / 2;
     
     self.loadFailedView.hx_centerX = self.hx_w / 2;
     self.loadFailedView.hx_centerY = self.hx_h / 2;

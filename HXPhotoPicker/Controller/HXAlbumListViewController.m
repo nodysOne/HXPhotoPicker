@@ -2,8 +2,8 @@
 //  HXDateAlbumViewController.m
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2017/10/14.
-//  Copyright © 2017年 洪欣. All rights reserved.
+//  Created by Silence on 2017/10/14.
+//  Copyright © 2017年 Silence. All rights reserved.
 //
 
 #import "HXAlbumListViewController.h" 
@@ -127,7 +127,7 @@ UITableViewDelegate
     CGFloat navBarHeight = hxNavigationBarHeight;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
-    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown) {
+    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown || HX_UI_IS_IPAD) {
         navBarHeight = hxNavigationBarHeight;
         [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     }else if (orientation == UIInterfaceOrientationLandscapeRight || orientation == UIInterfaceOrientationLandscapeLeft){
@@ -147,7 +147,7 @@ UITableViewDelegate
         rightMargin = 35;
         bottomMargin = 0;
     }
-  
+    
         self.tableView.contentInset = UIEdgeInsetsMake(navBarHeight, leftMargin, bottomMargin, rightMargin);
     
 #ifdef __IPHONE_13_0
@@ -171,9 +171,21 @@ UITableViewDelegate
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self changeStatusBarStyle];
+    if (self.manager.viewWillAppear) {
+        self.manager.viewWillAppear(self);
+    }
 }
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    if (self.manager.viewWillDisappear) {
+        self.manager.viewWillDisappear(self);
+    }
+}
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    if (self.manager.viewDidDisappear) {
+        self.manager.viewDidDisappear(self);
+    }
 }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
@@ -200,19 +212,14 @@ UITableViewDelegate
         }
 #endif
     }
+    if (self.manager.viewDidAppear) {
+        self.manager.viewDidAppear(self);
+    }
 }
 - (void)setupUI {
-    
-    UILabel *lb = [[UILabel alloc] init];
-    lb.textAlignment = NSTextAlignmentCenter;
-    lb.font = [UIFont hx_regularPingFangOfSize:18];
-    lb.text = [NSBundle hx_localizedStringForKey:@"相册"];
-    self.navigationItem.titleView = lb;
-    
+    self.title = [NSBundle hx_localizedStringForKey:@"相册"];
     [self changeColor];
-    UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle hx_localizedStringForKey:@"取消"] style:UIBarButtonItemStylePlain target:self action:@selector(cancelClick)];
-    [cancelItem setTitleTextAttributes:@{NSForegroundColorAttributeName: self.manager.configuration.themeColor,NSFontAttributeName: [UIFont hx_regularPingFangOfSize:14]} forState:UIControlStateNormal];
-    self.navigationItem.rightBarButtonItem = cancelItem;
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle hx_localizedStringForKey:@"取消"] style:UIBarButtonItemStyleDone target:self action:@selector(cancelClick)];
     if (self.manager.configuration.navigationBar) {
         self.manager.configuration.navigationBar(self.navigationController.navigationBar, self);
     }
@@ -256,6 +263,20 @@ UITableViewDelegate
             self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName : [UIColor blackColor]};
         }
     }
+    if (@available(iOS 15.0, *)) {
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        appearance.titleTextAttributes = self.navigationController.navigationBar.titleTextAttributes;
+        switch (self.manager.configuration.navBarStyle) {
+            case UIBarStyleDefault:
+                appearance.backgroundEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+                break;
+            default:
+                appearance.backgroundEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+                break;
+        }
+        self.navigationController.navigationBar.standardAppearance = appearance;
+        self.navigationController.navigationBar.scrollEdgeAppearance = appearance;
+    }
 }
 - (void)configTableView {
     [self.view addSubview:self.tableView];
@@ -286,6 +307,12 @@ UITableViewDelegate
     }
     if (self.doneBlock) {
         self.doneBlock(allList, photoList, videoList, original, self, self.manager);
+    }
+}
+- (void)photoViewController:(HXPhotoViewController *)photoViewController didDoneWithResult:(HXPickerResult *)result {
+    if ([self.delegate respondsToSelector:@selector(albumListViewController:didDoneWithResult:)]) {
+        [self.delegate albumListViewController:self
+                             didDoneWithResult:result];
     }
 }
 - (void)photoViewControllerDidCancel:(HXPhotoViewController *)photoViewController {
@@ -504,11 +531,13 @@ UITableViewDelegate
     NSInteger photoCount = self.model.count;
     HXWeakSelf
     PHAsset *asset = self.model.assetResult.lastObject;
-    self.requestId1 = [HXAssetManager requestThumbnailImageForAsset:asset targetWidth:300 completion:^(UIImage * _Nonnull result, NSDictionary<NSString *,id> * _Nonnull info) {
-        if (weakSelf.model.assetResult.lastObject == asset && result) {
-            weakSelf.coverView1.image = result;
-        }
-    }];
+    if (asset) {
+        self.requestId1 = [HXAssetManager requestThumbnailImageForAsset:asset targetWidth:300 completion:^(UIImage * _Nonnull result, NSDictionary<NSString *,id> * _Nonnull info) {
+            if (weakSelf.model.assetResult.lastObject == asset && result) {
+                weakSelf.coverView1.image = result;
+            }
+        }];
+    }
     
     self.photoNumberLb.text = [@(photoCount + self.model.cameraCount).stringValue hx_countStrBecomeComma];
     if (self.getResultCompleteBlock) {

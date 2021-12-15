@@ -2,12 +2,13 @@
 //  HXAssetManager.h
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2020/11/5.
-//  Copyright © 2020 洪欣. All rights reserved.
+//  Created by Silence on 2020/11/5.
+//  Copyright © 2020 Silence. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 #import <Photos/Photos.h>
+#import "HXPhotoTypes.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @class HXAlbumModel;
@@ -49,6 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Asset的原图
 + (UIImage *)originImageForAsset:(PHAsset *)asset;
+
+/// 请求视频地址
++ (void)requestVideoURL:(PHAsset *)asset
+             completion:(void (^ _Nullable)(NSURL * _Nullable videoURL))completion;
 
 /// 请求获取image
 /// @param asset 需要获取的资源
@@ -186,6 +191,17 @@ NS_ASSUME_NONNULL_BEGIN
                                  progressHandler:(PHAssetImageProgressHandler _Nullable)progressHandler
                                       completion:(void (^ _Nullable)(AVAssetExportSession * _Nullable exportSession, NSDictionary * _Nullable info))completion;
 
+/// 获取视频地址，可压缩
+/// @param asset 对应的 PHAsset 对象
+/// @param fileURL 指定导出地址
+/// @param exportPreset 导出视频分辨率
+/// @param videoQuality 导出视频质量[0-10]
+/// @param resultHandler 导出结果
++ (void)requestVideoURLForAsset:(PHAsset *)asset
+                         toFile:(NSURL * _Nullable)fileURL
+                   exportPreset:(HXVideoExportPreset)exportPreset
+                   videoQuality:(NSInteger)videoQuality
+                  resultHandler:(void (^ _Nullable)(NSURL * _Nullable))resultHandler;
 /// 获取是否成功完成
 /// @param info 获取时返回的信息
 + (BOOL)downloadFininedForInfo:(NSDictionary *)info;

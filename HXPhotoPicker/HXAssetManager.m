@@ -2,12 +2,15 @@
 //  HXAssetManager.m
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2020/11/5.
-//  Copyright © 2020 洪欣. All rights reserved.
+//  Created by Silence on 2020/11/5.
+//  Copyright © 2020 Silence. All rights reserved.
 //
 
 #import "HXAssetManager.h"
 #import "HXAlbumModel.h"
+#import "NSString+HXExtension.h"
+#import "PHAsset+HXExtension.h"
+#import "HXPhotoTools.h"
 
 @implementation HXAssetManager
 
@@ -98,7 +101,88 @@
     }];
     return resultImage;
 }
++ (void)requestVideoURL:(PHAsset *)asset completion:(void (^)(NSURL * _Nullable))completion {
+    [self requestAVAssetForAsset:asset networkAccessAllowed:YES progressHandler:nil completion:^(AVAsset * _Nonnull avAsset, AVAudioMix * _Nonnull audioMix, NSDictionary * _Nonnull info) {
+        [asset hx_checkForModificationsWithAssetPathMethodCompletion:^(BOOL isAdjusted) {
+            NSString *fileName = [[NSString hx_fileName] stringByAppendingString:@".mp4"];
+            NSString *fullPathToFile = [NSTemporaryDirectory() stringByAppendingPathComponent:fileName];
+            NSURL *videoURL = [NSURL fileURLWithPath:fullPathToFile];
+            if (isAdjusted) {
+                if ([avAsset isKindOfClass:AVURLAsset.class]) {
+                    NSFileManager *fileManager = [NSFileManager defaultManager];
+                    NSError *error;
+                    [fileManager copyItemAtURL:[(AVURLAsset *)avAsset URL] toURL:videoURL error:&error];
+                    if (error == nil) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if (completion) {
+                                completion(videoURL);
+                            }
+                        });
+                        return;
+                    }
+                }
+                NSArray *presets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
+                NSString *presetName;
+                if ([presets containsObject:AVAssetExportPresetHighestQuality]) {
+                    presetName = AVAssetExportPresetHighestQuality;
+                }else {
+                    presetName = AVAssetExportPresetMediumQuality;
+                }
+                AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:avAsset presetName:presetName];
+                session.outputURL = videoURL;
+                session.shouldOptimizeForNetworkUse = YES;
+                
+                NSArray *supportedTypeArray = session.supportedFileTypes;
+                if ([supportedTypeArray containsObject:AVFileTypeMPEG4]) {
+                    session.outputFileType = AVFileTypeMPEG4;
+                } else if (supportedTypeArray.count == 0) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (completion) {
+                            completion(nil);
+                        }
+                    });
+                    return;
+                }else {
+                    session.outputFileType = [supportedTypeArray objectAtIndex:0];
+                }
+                
+                [session exportAsynchronouslyWithCompletionHandler:^{
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if ([session status] == AVAssetExportSessionStatusCompleted) {
+                            if (completion) {
+                                completion(videoURL);
+                            }
+                        }else if ([session status] == AVAssetExportSessionStatusFailed ||
+                                  [session status] == AVAssetExportSessionStatusCancelled) {
+                            if (completion) {
+                                completion(nil);
+                            }
+                        }
+                    });
+                }];
+            }else {
+                PHAssetResource *videoResource = [PHAssetResource assetResourcesForAsset:asset].firstObject;
+                PHAssetResourceRequestOptions *options = [[PHAssetResourceRequestOptions alloc] init];
+                options.networkAccessAllowed = YES;
+                [[PHAssetResourceManager defaultManager] writeDataForAssetResource:videoResource toFile:videoURL options:options completionHandler:^(NSError * _Nullable error) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (!error) {
+                            if (completion) {
+                                completion(videoURL);
+                            }
+                        }else {
+                            completion(nil);
+                        }
+                    });
+                }];
+            }
+        }];
+    }];
+}
 + (CGSize)getAssetTargetSizeWithAsset:(PHAsset *)asset width:(CGFloat)width {
+    if (!asset) {
+        return CGSizeMake(width, width);
+    }
     CGFloat scale = 0.8f;
     CGFloat aspectRatio = asset.pixelWidth / (CGFloat)asset.pixelHeight;
     CGFloat initialWidth = width;
@@ -178,6 +262,97 @@
             });
         }
     }];
+}
+
++ (void)requestVideoURLForAsset:(PHAsset *)asset
+                         toFile:(NSURL * _Nullable)fileURL
+                   exportPreset:(HXVideoExportPreset)exportPreset
+                   videoQuality:(NSInteger)videoQuality
+                  resultHandler:(void (^ _Nullable)(NSURL * _Nullable))resultHandler {
+    [self requestAVAssetForAsset:asset networkAccessAllowed:YES progressHandler:nil completion:^(AVAsset * _Nonnull asset, AVAudioMix * _Nonnull audioMix, NSDictionary * _Nonnull info) {
+        if (asset == nil) {
+            if (resultHandler) {
+                resultHandler(nil);
+            }
+            return;
+        }
+        NSString *fileName = [[NSString hx_fileName] stringByAppendingString:@".mp4"];
+        NSString *fullPathToFile = [NSTemporaryDirectory() stringByAppendingPathComponent:fileName];
+        NSURL *videoURL = fileURL ?:  [NSURL fileURLWithPath:fullPathToFile];
+        NSString *presetName = [self presetName:exportPreset];
+        NSArray *presets = [AVAssetExportSession exportPresetsCompatibleWithAsset:asset];
+        if (![presets containsObject:presetName]) {
+            if (resultHandler) {
+                resultHandler(nil);
+            }
+            return;
+        }
+        AVAssetExportSession *session = [AVAssetExportSession exportSessionWithAsset:asset presetName:presetName];
+        session.outputURL = videoURL;
+        session.shouldOptimizeForNetworkUse = YES;
+        NSArray *supportedTypeArray = session.supportedFileTypes;
+        if ([supportedTypeArray containsObject:AVFileTypeMPEG4]) {
+            session.outputFileType = AVFileTypeMPEG4;
+        }else if (supportedTypeArray.count == 0) {
+            if (resultHandler) {
+                resultHandler(nil);
+            }
+            return;
+        }else {
+            session.outputFileType = [supportedTypeArray objectAtIndex:0];
+        }
+        if (videoQuality > 0) {
+            session.fileLengthLimit = [self exportSessionFileLengthLimitWithSeconds:CMTimeGetSeconds(asset.duration) exportPreset:exportPreset videoQuality:videoQuality];
+        }
+        [session exportAsynchronouslyWithCompletionHandler:^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (session.status == AVAssetExportSessionStatusCompleted) {
+                    if (resultHandler) {
+                        resultHandler(videoURL);
+                    }
+                }else {
+                    if (resultHandler) {
+                        resultHandler(nil);
+                    }
+                }
+            });
+        }];
+    }];
+}
++ (NSString *)presetName:(HXVideoExportPreset)exportPreset {
+    switch (exportPreset) {
+        case HXVideoEditorExportPresetLowQuality:
+            return AVAssetExportPresetLowQuality;
+        case HXVideoEditorExportPresetMediumQuality:
+            return AVAssetExportPresetMediumQuality;
+        case HXVideoEditorExportPresetHighQuality:
+            return AVAssetExportPresetHighestQuality;
+        case HXVideoEditorExportPresetRatio_640x480:
+            return AVAssetExportPreset640x480;
+        case HXVideoEditorExportPresetRatio_960x540:
+            return AVAssetExportPreset960x540;
+        case HXVideoEditorExportPresetRatio_1280x720:
+            return AVAssetExportPreset1280x720;
+        default:
+            return AVAssetExportPresetMediumQuality;
+    }
+}
++ (NSInteger)exportSessionFileLengthLimitWithSeconds:(CGFloat)seconds
+                                        exportPreset:(HXVideoExportPreset)exportPreset
+                                        videoQuality:(NSInteger)videoQuality {
+    if (videoQuality > 0) {
+        CGFloat ratioParam = 0;
+        if (exportPreset == HXVideoEditorExportPresetRatio_640x480) {
+            ratioParam = 0.02;
+        }else if (exportPreset == HXVideoEditorExportPresetRatio_960x540) {
+            ratioParam = 0.04;
+        }else if (exportPreset == HXVideoEditorExportPresetRatio_1280x720) {
+            ratioParam = 0.08;
+        }
+        NSInteger quality = MIN(videoQuality, 10);
+        return seconds * ratioParam * quality * 1000 * 1000;
+    }
+    return 0;
 }
 + (UIImageOrientation)imageOrientationWithCGImageOrientation:(CGImagePropertyOrientation)orientation {
     UIImageOrientation sureOrientation;

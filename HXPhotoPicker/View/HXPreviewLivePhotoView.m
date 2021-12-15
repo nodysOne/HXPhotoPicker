@@ -2,8 +2,8 @@
 //  HXPreviewLivePhotoView.m
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2019/11/15.
-//  Copyright © 2019 洪欣. All rights reserved.
+//  Created by Silence on 2019/11/15.
+//  Copyright © 2019 Silence. All rights reserved.
 //
 
 #import "HXPreviewLivePhotoView.h"
@@ -206,7 +206,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             imageDownloadCompletion = YES;
             if (error) {
-                [[UIApplication sharedApplication].keyWindow hx_showImageHUDText:@"下载失败!"];
+                [[UIApplication sharedApplication].keyWindow hx_showImageHUDText:[NSBundle hx_localizedStringForKey:@"下载失败，请重试！"]];
             }
             if (image) {
 #if HasSDWebImage

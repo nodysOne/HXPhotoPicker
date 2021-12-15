@@ -2,8 +2,8 @@
 //  HXPhotoPreviewViewCell.h
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2019/12/5.
-//  Copyright © 2019 洪欣. All rights reserved.
+//  Created by Silence on 2019/12/5.
+//  Copyright © 2019 Silence. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -16,6 +16,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface HXPhotoPreviewViewCell : UICollectionViewCell
+
+/// 预览大图时允许直接加载原图，不先加载小图
+@property (assign, nonatomic) BOOL allowPreviewDirectLoadOriginalImage;
 @property (assign, nonatomic) BOOL stopCancel;
 @property (strong, nonatomic) HXPhotoModel *model;
 @property (strong, nonatomic, readonly) UIScrollView *scrollView;
@@ -34,16 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)cancelRequest;
 - (CGSize)getImageSize;
 
-- (CGFloat)getScrollViewZoomScale;
-- (void)setScrollViewZoomScale:(CGFloat)zoomScale;
-- (CGSize)getScrollViewContentSize;
-- (void)setScrollViewContnetSize:(CGSize)contentSize;
-- (CGPoint)getScrollViewContentOffset;
-- (void)setScrollViewContentOffset:(CGPoint)contentOffset;
-@property (copy, nonatomic) void (^ scrollViewDidScroll)(UIScrollView *scrollView);
-
 @property (strong, nonatomic) HXPreviewContentView *previewContentView;
 - (UIImage *)image;
+
+@property (assign, nonatomic) BOOL allowInteration;
 @end
 
 NS_ASSUME_NONNULL_END

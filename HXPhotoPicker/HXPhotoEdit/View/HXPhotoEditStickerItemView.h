@@ -2,8 +2,8 @@
 //  HXPhotoEditStickerItemView.h
 //  photoEditDemo
 //
-//  Created by 洪欣 on 2020/6/23.
-//  Copyright © 2020 洪欣. All rights reserved.
+//  Created by Silence on 2020/6/23.
+//  Copyright © 2020 Silence. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -34,13 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (copy, nonatomic) void (^ touchBegan)(HXPhotoEditStickerItemView *itemView);
 @property (copy, nonatomic) void (^ touchEnded)(HXPhotoEditStickerItemView *itemView);
 
-@property (copy, nonatomic) void (^ panBegan)(void);
 @property (copy, nonatomic) void (^ panChanged)(UIPanGestureRecognizer *pan);
 @property (copy, nonatomic) BOOL (^ panEnded)(HXPhotoEditStickerItemView *itemView);
-@property (copy, nonatomic) void (^ pinchBegan)(void);
-@property (copy, nonatomic) void (^ pinchEnded)(void);
-@property (copy, nonatomic) void (^ rotationBegan)(void);
-@property (copy, nonatomic) void (^ rotationEnded)(void);
 
 @property (assign, nonatomic) NSInteger mirrorType;
 @property (assign, nonatomic) NSInteger superMirrorType;

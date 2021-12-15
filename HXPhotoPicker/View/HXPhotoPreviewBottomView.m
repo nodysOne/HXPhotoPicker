@@ -2,16 +2,14 @@
 //  HXPhotoPreviewBottomView.m
 //  HXPhotoPickerExample
 //
-//  Created by 洪欣 on 2017/10/16.
-//  Copyright © 2017年 洪欣. All rights reserved.
+//  Created by Silence on 2017/10/16.
+//  Copyright © 2017年 Silence. All rights reserved.
 //
 
 #import "HXPhotoPreviewBottomView.h"
 #import "HXPhotoManager.h"
 #import "UIImageView+HXExtension.h"
 #import "HXPhotoEdit.h"
-#import "UIColor+HXExtension.h"
-
 @interface HXPhotoPreviewBottomView ()<UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
 @property (strong, nonatomic) UICollectionView *collectionView;
 @property (strong, nonatomic) UICollectionViewFlowLayout *flowLayout;
@@ -52,9 +50,7 @@
 }
 - (void)setupUI {
     _currentIndex = -1;
-    self.backgroundColor = [UIColor whiteColor];
     [self addSubview:self.bgView];
-    [self.bgView setHidden:YES];
     [self addSubview:self.collectionView];
     [self addSubview:self.doneBtn];
     [self addSubview:self.editBtn];
@@ -91,13 +87,13 @@
         }
     }
     if (model.subType == HXPhotoModelMediaSubTypeVideo && !tipText) {
-        if (model.videoDuration >= self.manager.configuration.videoMaximumSelectDuration + 1) {
+        if (round(model.videoDuration) >= self.manager.configuration.videoMaximumSelectDuration + 1) {
             if (self.manager.configuration.videoCanEdit) {
                 tipText = [NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"只能选择%ld秒内的视频，需进行编辑"], self.manager.configuration.videoMaximumSelectDuration];
             }else {
                 tipText = [NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"视频大于%ld秒，无法选择"], self.manager.configuration.videoMaximumSelectDuration];
             }
-        }else if (model.videoDuration < self.manager.configuration.videoMinimumSelectDuration) {
+        }else if (round(model.videoDuration) < self.manager.configuration.videoMinimumSelectDuration) {
             tipText = [NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"视频少于%ld秒，无法选择"], self.manager.configuration.videoMinimumSelectDuration];
         }
     }
@@ -142,38 +138,25 @@
     NSString *text;
     if (selectCount <= 0) {
         text = @"";
-        [self.doneBtn setTitle:[NSBundle hx_localizedStringForKey:@"确定"] forState:UIControlStateNormal];
+        [self.doneBtn setTitle:[NSBundle hx_localizedStringForKey:@"完成"] forState:UIControlStateNormal];
     }else {
         if (self.manager.configuration.doneBtnShowDetail) {
             if (!self.manager.configuration.selectTogether) {
                 if (self.manager.selectedPhotoCount > 0) {
-//                    NSInteger maxCount = self.manager.configuration.photoMaxNum > 0 ? self.manager.configuration.photoMaxNum : self.manager.configuration.maxNum;
-                    text = [NSString stringWithFormat:@"(%ld)", selectCount];
+                    NSInteger maxCount = self.manager.configuration.photoMaxNum > 0 ? self.manager.configuration.photoMaxNum : self.manager.configuration.maxNum;
+                    text = [NSString stringWithFormat:@"(%ld/%ld)", selectCount,maxCount];
                 }else {
-//                    NSInteger maxCount = self.manager.configuration.videoMaxNum > 0 ? self.manager.configuration.videoMaxNum : self.manager.configuration.maxNum;
-                    text = [NSString stringWithFormat:@"(%ld)", selectCount];
+                    NSInteger maxCount = self.manager.configuration.videoMaxNum > 0 ? self.manager.configuration.videoMaxNum : self.manager.configuration.maxNum;
+                    text = [NSString stringWithFormat:@"(%ld/%ld)", selectCount,maxCount];
                 }
             }else {
-                text = [NSString stringWithFormat:@"(%ld)", selectCount];
+                text = [NSString stringWithFormat:@"(%ld/%ld)", selectCount,self.manager.configuration.maxNum];
             }
         }else {
             text = [NSString stringWithFormat:@"(%ld)", selectCount];
         }
     }
-    
-    if (self.manager.configuration.singleSelected) {
-        
-        self.doneBtn.enabled = YES;
-        [self.doneBtn setTitle:[NSString stringWithFormat:@"%@",[NSBundle hx_localizedStringForKey:@"确定"]] forState:UIControlStateNormal];
-        self.doneBtn.backgroundColor = self.manager.configuration.themeColor;
-
-    }else {
-        self.doneBtn.enabled = (selectCount > 0);
-        [self.doneBtn setTitle:[NSString stringWithFormat:@"%@%@",[NSBundle hx_localizedStringForKey:@"确定"], text] forState:UIControlStateNormal];
-        self.doneBtn.backgroundColor = self.doneBtn.enabled ? self.manager.configuration.bottomDoneBtnBgColor : self.manager.configuration.bottomDoneBtnEnabledBgColor;
-    }
-    
-
+    [self.doneBtn setTitle:[NSString stringWithFormat:@"%@%@",[NSBundle hx_localizedStringForKey:@"完成"], text] forState:UIControlStateNormal];
     [self changeDoneBtnFrame];
 }
 #pragma mark - < UICollectionViewDataSource >
@@ -184,6 +167,9 @@
     HXPhotoPreviewBottomViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DatePreviewBottomViewCellId" forIndexPath:indexPath];
     cell.selectColor = self.manager.configuration.previewBottomSelectColor ? : self.manager.configuration.themeColor;
     HXPhotoModel *model = self.modelArray[indexPath.item];
+    if ([HXPhotoTools isRTLLanguage]) {
+        model = self.modelArray[self.modelArray.count - 1 - indexPath.item];
+    }
     cell.model = model;
     return cell;
 }
@@ -241,12 +227,12 @@
         }
     }else {
         
-//        CGFloat width = self.doneBtn.titleLabel.hx_getTextWidth;
-//        self.doneBtn.hx_w = width + 20;
-//        if (self.doneBtn.hx_w < 60) {
-//            self.doneBtn.hx_w = 60;
-//        }
-//        self.doneBtn.hx_x = self.hx_w - 12 - self.doneBtn.hx_w;
+        CGFloat width = self.doneBtn.titleLabel.hx_getTextWidth;
+        self.doneBtn.hx_w = width + 20;
+        if (self.doneBtn.hx_w < 60) {
+            self.doneBtn.hx_w = 60;
+        }
+        self.doneBtn.hx_x = self.hx_w - 12 - self.doneBtn.hx_w;
         self.editBtn.hx_x = self.doneBtn.hx_x - self.editBtn.hx_w;
         if (self.manager.type == HXPhotoManagerSelectedTypePhoto || self.manager.type == HXPhotoManagerSelectedTypeVideo) {
             if (!self.hideEditBtn) {
@@ -270,7 +256,8 @@
     [super layoutSubviews];
     self.bgView.frame = self.bounds;
  
-    self.doneBtn.frame = CGRectMake(HX_ScreenWidth-HX_Width(290)-HX_Width(50), HX_Height(30), HX_Width(290), HX_Height(90));
+    self.doneBtn.frame = CGRectMake(0, 0, 60, 30);
+    self.doneBtn.center = CGPointMake(self.doneBtn.center.x, 25);
     
     
     [self changeDoneBtnFrame];
@@ -345,7 +332,6 @@
         _collectionView.showsVerticalScrollIndicator = NO;
         _collectionView.showsHorizontalScrollIndicator = NO;
         [_collectionView registerClass:[HXPhotoPreviewBottomViewCell class] forCellWithReuseIdentifier:@"DatePreviewBottomViewCellId"];
-        _collectionView.alpha = 0;
     }
     return _collectionView;
 }
@@ -364,9 +350,9 @@
 - (UIButton *)doneBtn {
     if (!_doneBtn) {
         _doneBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_doneBtn setTitle:[NSBundle hx_localizedStringForKey:@"确定"] forState:UIControlStateNormal];
-        _doneBtn.titleLabel.font = [UIFont hx_regularPingFangOfSize:16];
-        _doneBtn.layer.cornerRadius = HX_Height(45);
+        [_doneBtn setTitle:[NSBundle hx_localizedStringForKey:@"完成"] forState:UIControlStateNormal];
+        _doneBtn.titleLabel.font = [UIFont hx_mediumPingFangOfSize:16];
+        _doneBtn.layer.cornerRadius = 3;
         [_doneBtn addTarget:self action:@selector(didDoneBtnClick) forControlEvents:UIControlEventTouchUpInside];
     }
     return _doneBtn;
