@@ -8,11 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import <PhotosUI/PhotosUI.h>
+#import <LUIViewController_OC.h>
 #import "HXPhotoManager.h"
 #import "HXPhotoView.h"
 #import "HXPhotoPreviewImageViewCell.h"
 #import "HXPhotoPreviewVideoViewCell.h"
 #import "HXPhotoPreviewLivePhotoCell.h"
+#import "HXPhotoPreviewBottomCollectionView.h"
 
 @class
 HXPhotoPreviewViewController,
@@ -87,7 +89,7 @@ HXPhotoPreviewViewCell;
 
 /// 单独使用 HXPhotoPreviewViewController 来预览图片
 /// 请使用 <UIViewController+HXExtension> 中的方法
-@interface HXPhotoPreviewViewController : UIViewController<UIViewControllerTransitioningDelegate,UINavigationControllerDelegate>
+@interface HXPhotoPreviewViewController : LUIViewController_OC<UIViewControllerTransitioningDelegate,UINavigationControllerDelegate>
 @property (weak, nonatomic) id<HXPhotoPreviewViewControllerDelegate> delegate;
 @property (strong, nonatomic) HXPhotoManager *manager;
 @property (strong, nonatomic) NSMutableArray *modelArray;
@@ -96,7 +98,9 @@ HXPhotoPreviewViewCell;
 @property (assign, nonatomic) BOOL selectPreview;
 @property (strong, nonatomic) UICollectionView *collectionView;
 @property (strong, nonatomic) HXPhotoPreviewBottomView *bottomView;
+@property (strong, nonatomic) HXPhotoPreviewBottomCollectionView *bottomCollectionView;
 @property (strong, nonatomic) HXPhotoView *photoView;
+@property (assign, nonatomic) NSString *ishidden;
 /// 停止取消
 @property (assign, nonatomic) BOOL stopCancel;
 /// 预览时显示删除按钮
@@ -109,11 +113,10 @@ HXPhotoPreviewViewCell;
 @property (assign, nonatomic) BOOL showBottomPageControl;
 /// 处理ios8 导航栏转场动画崩溃问题
 @property (strong, nonatomic) UIViewController *photoViewController;
+@property (copy, nonatomic) void (^ currentCellScrollViewDidScroll)(UIScrollView *scrollView);
 
 - (HXPhotoPreviewViewCell *)currentPreviewCell:(HXPhotoModel *)model;
-- (HXPhotoPreviewViewCell *)currentPreviewCell;
 - (void)changeStatusBarWithHidden:(BOOL)hidden;
 - (void)setSubviewAlphaAnimate:(BOOL)animete duration:(NSTimeInterval)duration;
 - (void)setupDarkBtnAlpha:(CGFloat)alpha;
-- (void)setCellImage:(UIImage *)image;
 @end 

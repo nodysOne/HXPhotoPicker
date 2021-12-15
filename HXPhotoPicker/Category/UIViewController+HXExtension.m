@@ -7,7 +7,8 @@
 //
 
 #import "UIViewController+HXExtension.h"
-#import "HXPhotoPicker.h" 
+#import "HXPhotoPicker.h"
+#import <LUINavigationController_OC.h>
 
 @implementation UIViewController (HXExtension)
 - (void)hx_presentAlbumListViewControllerWithManager:(HXPhotoManager *)manager
@@ -115,6 +116,14 @@
     [self hx_presentPreviewPhotoControllerWithManager:manager previewStyle:previewStyle showBottomPageControl:YES currentIndex:currentIndex photoView:photoView];
 }
 
+- (void)whx_presentPreviewPhotoControllerWithManager:(HXPhotoManager *)manager
+                                       previewStyle:(HXPhotoViewPreViewShowStyle)previewStyle
+                                       currentIndex:(NSUInteger)currentIndex
+                                          photoView:(HXPhotoView * _Nullable)photoView
+                                     hiddenRightBtn:(NSString * _Nullable)ishidden{
+    [self whx_presentPreviewPhotoControllerWithManager:manager previewStyle:previewStyle showBottomPageControl:YES currentIndex:currentIndex photoView:photoView hiddenRightBtn:ishidden];
+}
+
 - (void)hx_presentPreviewPhotoControllerWithManager:(HXPhotoManager *)manager
                                        previewStyle:(HXPhotoViewPreViewShowStyle)previewStyle
                               showBottomPageControl:(BOOL)showBottomPageControl
@@ -146,8 +155,52 @@
     vc.photoView = photoView;
     vc.modalPresentationStyle = UIModalPresentationOverFullScreen;
     vc.modalPresentationCapturesStatusBarAppearance = YES;
+    
+    LUINavigationController_OC *nvc = [[LUINavigationController_OC alloc] initWithRootViewController:vc];
+    nvc.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    nvc.modalPresentationCapturesStatusBarAppearance = YES;
+    nvc.navigationBar.hidden = YES;
+    [self presentViewController:nvc animated:YES completion:nil];
+}
+
+
+- (void)whx_presentPreviewPhotoControllerWithManager:(HXPhotoManager *)manager
+                                       previewStyle:(HXPhotoViewPreViewShowStyle)previewStyle
+                              showBottomPageControl:(BOOL)showBottomPageControl
+                                       currentIndex:(NSUInteger)currentIndex
+                                          photoView:(HXPhotoView * _Nullable)photoView
+                                    hiddenRightBtn:(NSString * _Nullable)ishidden{
+    
+    HXPhotoPreviewViewController *vc = [[HXPhotoPreviewViewController alloc] init];
+    vc.ishidden = ishidden;
+    vc.disableaPersentInteractiveTransition = photoView.disableaInteractiveTransition;
+    vc.outside = YES;
+    vc.manager = manager ?: photoView.manager;
+    vc.exteriorPreviewStyle = photoView ? photoView.previewStyle : previewStyle;
+    vc.delegate = (id)self;
+    if (manager.afterSelectedArray) {
+        vc.modelArray = [NSMutableArray arrayWithArray:manager.afterSelectedArray];
+    }
+    if (currentIndex >= vc.modelArray.count) {
+        vc.currentModelIndex = vc.modelArray.count - 1;
+    }else if (currentIndex < 0) {
+        vc.currentModelIndex = 0;
+    }else {
+        vc.currentModelIndex = currentIndex;
+    }
+    if (photoView) {
+        vc.showBottomPageControl = photoView.previewShowDeleteButton;
+    }else {
+        vc.showBottomPageControl = showBottomPageControl;
+    }
+    vc.previewShowDeleteButton = photoView.previewShowDeleteButton;
+    vc.photoView = photoView;
+    vc.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    vc.modalPresentationCapturesStatusBarAppearance = YES;
+    
     [self presentViewController:vc animated:YES completion:nil];
 }
+
 
 - (void)hx_presentWxPhotoEditViewControllerWithConfiguration:(HXPhotoEditConfiguration * _Nonnull)configuration
                                                   photoModel:(HXPhotoModel * _Nonnull)photomodel
@@ -244,7 +297,7 @@
 }
 
 - (HXCustomNavigationController *)hx_customNavigationController {
-    if ([NSStringFromClass([self.navigationController class]) isEqualToString:@"HXCustomNavigationController"]) {
+    if ([self.navigationController isKindOfClass:[HXCustomNavigationController class]]) {
         return (HXCustomNavigationController *)self.navigationController;
     }
     return nil;
