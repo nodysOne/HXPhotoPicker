@@ -10,7 +10,7 @@
 #import "UIImageView+HXExtension.h"
 #import "HXPhotoEdit.h"
 #import "UIColor+HXExtension.h"
-#import "LColor_OC.h"
+//#import "LColor_OC.h" //sunwf-n
 
 @interface HXPhotoPreviewBottomCollectionView ()<UICollectionViewDelegate, UICollectionViewDataSource>
 
@@ -147,7 +147,7 @@
 - (UIView *)lineView {
     if (!_lineView) {
         _lineView = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height-1, HX_ScreenWidth, 1)];
-        _lineView.backgroundColor = [[LColor_OC colorType: line] color];
+//        _lineView.backgroundColor = [[LColor_OC colorType: line] color];//sunwf-n
     }
     return _lineView;
 }
@@ -260,13 +260,13 @@
 - (void)setManager:(HXPhotoManager *)manager {
     _manager = manager;
     _manager.configuration.previewBottomSelectColor = manager.configuration.previewBottomSelectColor ? : manager.configuration.themeColor;
-    self.layer.borderWidth = self.selected ? manager.configuration.previewBottomSelectBorderWidth : 0;
+//    self.layer.borderWidth = self.selected ? manager.configuration.previewBottomSelectBorderWidth : 0; //sunwf-n
     self.layer.borderColor = self.selected ? [([HXPhotoCommon photoCommon].isDark ? [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1] : manager.configuration.previewBottomSelectColor) colorWithAlphaComponent:1].CGColor : nil;
 }
 
 - (void)setSelected:(BOOL)selected {
     [super setSelected:selected];
-    self.layer.borderWidth = selected ? self.manager.configuration.previewBottomSelectBorderWidth : 0;
+//    self.layer.borderWidth = selected ? self.manager.configuration.previewBottomSelectBorderWidth : 0; //sunwf-n
     self.layer.borderColor = selected ? [([HXPhotoCommon photoCommon].isDark ? [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1] : self.manager.configuration.previewBottomSelectColor) colorWithAlphaComponent:1].CGColor : nil;
 }
 - (void)cancelRequest {

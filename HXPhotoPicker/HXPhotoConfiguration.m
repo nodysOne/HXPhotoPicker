@@ -9,6 +9,7 @@
 #import "HXPhotoConfiguration.h"
 #import "HXPhotoTools.h"
 #import "UIColor+HXExtension.h"
+//#import "LColor_OC.h"//sunwf
 
 @implementation HXPhotoConfiguration
 
@@ -31,7 +32,7 @@
     self.maxNum = 10;
     self.photoMaxNum = 9;
     self.videoMaxNum = 1;
-    self.showBottomPhotoDetail = YES;
+    self.showBottomPhotoDetail = NO;
     self.videoMaximumSelectDuration = 3 * 60.f;
     self.videoMinimumSelectDuration = 0.f;
     self.videoMaximumDuration = 60.f;
@@ -47,7 +48,7 @@
     self.popInteractiveTransitionDuration = 0.45f;
     self.doneBtnShowDetail = YES;
     self.videoCanEdit = YES;
-    self.photoCanEdit = YES;
+    self.photoCanEdit = NO;
     self.localFileName = @"HXPhotoPickerModelArray";
     self.languageType = HXPhotoLanguageTypeSys;
     self.popupTableViewCellHeight = 65.f;
@@ -79,6 +80,8 @@
     self.albumListViewCellSelectBgColor = nil;
     self.albumListViewCellLineColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.15];
     self.photoListBottomPhotoCountTextColor = [UIColor colorWithRed:51.f / 255.f green:51.f / 255.f blue:51.f / 255.f alpha:1];
+    // self.bottomDoneBtnBgColor = [[LColor_OC colorType:primary] color]; // sunwf
+    // self.bottomDoneBtnEnabledBgColor = [[LColor_OC colorType:primary] color:Disable];//sunwf
     
     self.limitPhotoSize = 0;
     self.limitVideoSize = 0;
@@ -116,7 +119,6 @@
     self.photoListLimitTextColor = [UIColor hx_colorWithHexStr:@"#666666"];
     self.photoListLimitSettingColor = self.themeColor;
     self.photoListLimitCloseColor = self.themeColor;
-    
     self.photoListLimitCellBackgroundColor = [UIColor hx_colorWithHexStr:@"#f1f1f1"];
     self.photoListLimitCellBackgroundDarkColor = [UIColor hx_colorWithHexStr:@"#333333"];
     self.photoListLimitCellLineColor = [UIColor hx_colorWithHexStr:@"#999999"];
@@ -181,7 +183,7 @@
 }
 - (UIColor *)themeColor {
     if (!_themeColor) {
-        _themeColor = [UIColor colorWithRed:0 green:0.47843137254901963 blue:1 alpha:1]; 
+        _themeColor = [UIColor hx_colorWithHexStr:@"#181818"];
     }
     return _themeColor;
 }

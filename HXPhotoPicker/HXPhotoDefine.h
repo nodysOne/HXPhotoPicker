@@ -29,6 +29,13 @@
 /// 如果不实现此代理，item的小大将默认 (100, 100)
 #define HXPhotoViewCustomItemSize 0
 
+#define HX_ScreenWidth [UIScreen mainScreen].bounds.size.width
+#define HX_ScreenHeight [UIScreen mainScreen].bounds.size.height
+#define HX_Width(width) (HX_ScreenWidth/375.0*width/2.0)
+#define HX_Height(height) (HX_ScreenWidth/375.0*height/2.0)
+#define HX_FontSize(fontSize) (HX_ScreenWidth/375.0*fontSize/2.0)
+
+
 #define HXRound(x) (round(x*100000)/100000)
 #define HXRoundHundreds(x) (round(x*100)/100)
 #define HXRoundDecade(x) (round(x*10)/10)

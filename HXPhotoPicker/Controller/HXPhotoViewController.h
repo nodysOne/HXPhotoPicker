@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "HXBaseViewController.h" //sunwf
 #import "HXPhotoManager.h"
 #import "HXCustomCollectionReusableView.h"
 #import "HXPhotoLimitView.h"
@@ -61,7 +60,7 @@ HXCustomCameraController;
 - (void)photoViewControllerCancelDismissCompletion:(HXPhotoViewController *)photoViewController;
 @end
 
-@interface HXPhotoViewController : HXBaseViewController //sunwf
+@interface HXPhotoViewController : UIViewController
 @property (copy, nonatomic) viewControllerDidDoneBlock doneBlock;
 @property (copy, nonatomic) viewControllerDidCancelBlock cancelBlock;
 @property (weak, nonatomic) id<HXPhotoViewControllerDelegate> delegate;
