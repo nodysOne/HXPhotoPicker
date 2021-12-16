@@ -9,7 +9,7 @@
 #import "HXPhotoConfiguration.h"
 #import "HXPhotoTools.h"
 #import "UIColor+HXExtension.h"
-//#import "LColor_OC.h"//sunwf
+#import "LColor_OC.h"//sunwf
 
 @implementation HXPhotoConfiguration
 
@@ -37,6 +37,7 @@
     self.videoMinimumSelectDuration = 0.f;
     self.videoMaximumDuration = 60.f;
     self.videoMinimumDuration = 3.f;
+    self.previewBottomSelectBorderWidth = 3.0f;
     if ([UIScreen mainScreen].bounds.size.width != 320 && [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
         self.cameraCellShowPreview = YES;
     }
@@ -80,9 +81,9 @@
     self.albumListViewCellSelectBgColor = nil;
     self.albumListViewCellLineColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.15];
     self.photoListBottomPhotoCountTextColor = [UIColor colorWithRed:51.f / 255.f green:51.f / 255.f blue:51.f / 255.f alpha:1];
-    // self.bottomDoneBtnBgColor = [[LColor_OC colorType:primary] color]; // sunwf
-    // self.bottomDoneBtnEnabledBgColor = [[LColor_OC colorType:primary] color:Disable];//sunwf
-    
+     self.bottomDoneBtnBgColor = [[LColor_OC colorType:primary] color]; // sunwf
+     self.bottomDoneBtnEnabledBgColor = [[LColor_OC colorType:primary] color:Disable];//sunwf
+   
     self.limitPhotoSize = 0;
     self.limitVideoSize = 0;
     self.selectPhotoLimitSize = NO;

@@ -523,6 +523,9 @@ HXPhotoPreviewViewController;
 /// 预览界面底部已选照片的选中颜色
 @property (strong, nonatomic) UIColor *previewBottomSelectColor;
 
+/// 预览界面底部已选照片的选中边框宽度
+@property (nonatomic, assign) CGFloat previewBottomSelectBorderWidth;
+
 /// 是否可以改变原图按钮的tinColor
 @property (assign, nonatomic) BOOL changeOriginalTinColor;
 

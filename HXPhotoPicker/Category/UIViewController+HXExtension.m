@@ -7,7 +7,8 @@
 //
 
 #import "UIViewController+HXExtension.h"
-#import "HXPhotoPicker.h" 
+#import "HXPhotoPicker.h"
+#import "LUINavigationController_OC.h"
 
 @implementation UIViewController (HXExtension)
 - (void)hx_presentAlbumListViewControllerWithManager:(HXPhotoManager *)manager
@@ -146,8 +147,12 @@
     vc.photoView = photoView;
     vc.modalPresentationStyle = UIModalPresentationOverFullScreen;
     vc.modalPresentationCapturesStatusBarAppearance = YES;
-    [self presentViewController:vc animated:YES completion:nil];
-}
+    
+    LUINavigationController_OC *nvc = [[LUINavigationController_OC alloc] initWithRootViewController:vc];
+    nvc.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    nvc.modalPresentationCapturesStatusBarAppearance = YES;
+    nvc.navigationBar.hidden = YES;
+    [self presentViewController:nvc animated:YES completion:nil];}
 
 - (void)hx_presentWxPhotoEditViewControllerWithConfiguration:(HXPhotoEditConfiguration * _Nonnull)configuration
                                                   photoModel:(HXPhotoModel * _Nonnull)photomodel

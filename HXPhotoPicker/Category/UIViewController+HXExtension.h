@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-
 #import "HXCustomCameraViewController.h"
 #import "HXPhotoEditViewController.h"
 #import "HX_PhotoEditViewController.h"

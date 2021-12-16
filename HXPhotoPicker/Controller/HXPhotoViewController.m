@@ -297,8 +297,7 @@ HX_PhotoEditViewControllerDelegate
     self.navigationItem.titleView = lb;
     
     //sunwf
-    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"back"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:UIBarButtonItemStylePlain target:self action: @selector(leftItemClick)];
-    leftItem.title = @"返回";
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[[UIImage hx_imageNamed:@"hx_nav_back"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:UIBarButtonItemStylePlain target:self action: @selector(leftItemClick)];
     self.navigationItem.leftBarButtonItem = leftItem;
     
 //    if (self.manager.configuration.albumShowMode == HXPhotoAlbumShowModePopup) {
@@ -3136,8 +3135,8 @@ HX_PhotoEditViewControllerDelegate
     if (!_selectMaskLayer) {
         _selectMaskLayer = [CALayer layer];
         _selectMaskLayer.hidden = YES;
-        _selectMaskLayer.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.5].CGColor;
-    }
+        _selectMaskLayer.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0].CGColor;
+    } //sunwf
     return _selectMaskLayer;
 }
 - (CALayer *)iCloudMaskLayer {
