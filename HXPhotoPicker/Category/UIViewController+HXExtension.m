@@ -130,7 +130,7 @@
     vc.delegate = (id)self;
     if (manager.afterSelectedArray) {
         vc.modelArray = [NSMutableArray arrayWithArray:manager.afterSelectedArray];
-    }
+    } 
     if (currentIndex >= vc.modelArray.count) {
         vc.currentModelIndex = vc.modelArray.count - 1;
     }else if (currentIndex < 0) {

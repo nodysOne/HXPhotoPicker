@@ -577,6 +577,7 @@ HX_PhotoEditViewControllerDelegate
     self.albumTitleView.canSelect = YES;
 }
 - (void)getPhotoList {
+    [self.manager cancelBeforeSelectedList];//sunwf -add
     [self startGetAllPhotoModel];
 }
 - (void)didCancelClick {
@@ -3190,8 +3191,11 @@ HX_PhotoEditViewControllerDelegate
         [_selectBtn setBackgroundImage:bgImage forState:UIControlStateSelected];
         [_selectBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
         _selectBtn.titleLabel.font = [UIFont hx_regularPingFangOfSize:16];
-        _selectBtn.hx_size = CGSizeMake(HX_Width(40), HX_Width(40));
-        self.seletBtnNormalWidth = _selectBtn.hx_w;
+//        _selectBtn.hx_size = CGSizeMake(HX_Width(40), HX_Width(40));
+        _selectBtn.hx_size = CGSizeMake(24, 24);
+        _selectBtn.layer.cornerRadius = 12;//sunwf
+
+//        self.seletBtnNormalWidth = _selectBtn.hx_w;
         [_selectBtn addTarget:self action:@selector(didSelectClick:) forControlEvents:UIControlEventTouchUpInside];
         [_selectBtn hx_setEnlargeEdgeWithTop:0 right:0 bottom:15 left:15];
     }

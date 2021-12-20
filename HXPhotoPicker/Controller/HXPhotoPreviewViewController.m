@@ -586,7 +586,11 @@ HX_PhotoEditViewControllerDelegate
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectBtn];
         self.selectBtn.selected = model.selected;
         [self.selectBtn setTitle:model.selectIndexStr forState:UIControlStateSelected];
-        
+        self.selectBtn.hx_size = CGSizeMake(20, 20);
+        if (model.selectIndexStr.length > 0) {
+            self.bottomCollectionView.currentIndex = [model.selectIndexStr intValue] - 1;
+        } //sunwf
+
 //        CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
 //        if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
 //            self.selectBtn.hx_w = selectTextWidth + 10;
@@ -678,6 +682,7 @@ HX_PhotoEditViewControllerDelegate
         anim.values = @[@(1.2),@(0.8),@(1.1),@(0.9),@(1.0)];
         [button.layer addAnimation:anim forKey:@""];
     }
+    self.selectBtn.hx_size = CGSizeMake(20, 20);
 //    CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
 //    if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
 //        self.selectBtn.hx_w = selectTextWidth + 10;
@@ -1054,6 +1059,12 @@ HX_PhotoEditViewControllerDelegate
         }
         self.selectBtn.selected = model.selected;
         [self.selectBtn setTitle:model.selectIndexStr forState:UIControlStateSelected];
+        self.selectBtn.hx_size = CGSizeMake(20, 20);
+        
+        if (model.selectIndexStr.length > 0) {
+            self.bottomCollectionView.currentIndex = [model.selectIndexStr intValue] - 1;
+        } //sunwf
+
 //        CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
 //        if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
 //            self.selectBtn.hx_w = selectTextWidth + 10;
@@ -1426,6 +1437,8 @@ HX_PhotoEditViewControllerDelegate
                 [self.manager beforeSelectedListAddPhotoModel:photoModel];
                 self.selectBtn.selected = YES;
                 [self.selectBtn setTitle:photoModel.selectIndexStr forState:UIControlStateSelected];
+                self.selectBtn.hx_size = CGSizeMake(20, 20);
+
 //                CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
 //                if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
 //                    self.selectBtn.hx_w = selectTextWidth + 10;
@@ -1572,6 +1585,7 @@ HX_PhotoEditViewControllerDelegate
         [_darkCancelView addSubview:effectView];
         [_darkCancelView addSubview:self.darkCancelBtn];
     }
+    _darkCancelView.hidden = YES;//sunwf
     return _darkCancelView;
 }
 - (UIButton *)darkCancelBtn {
@@ -1683,16 +1697,20 @@ HX_PhotoEditViewControllerDelegate
 } //sunwf
 
 - (UIButton *)selectBtn {
+    
     if (!_selectBtn) {
         _selectBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        _selectBtn.titleLabel.font = [UIFont hx_mediumPingFangOfSize:14];;
         [_selectBtn setBackgroundImage:[UIImage hx_imageNamed:@"hig_rele_icon_xuanze_weix"] forState:UIControlStateNormal];
-        [_selectBtn setBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateSelected];
-        _selectBtn.titleLabel.font = [UIFont hx_regularPingFangOfSize:HX_FontSize(28)];;
+        [_selectBtn setBackgroundImage:[[UIImage alloc] init] forState:UIControlStateSelected];
+        _selectBtn.hx_size = CGSizeMake(20, 20);
+        _selectBtn.layer.cornerRadius = 10;//sunwf
         [_selectBtn addTarget:self action:@selector(didSelectClick:) forControlEvents:UIControlEventTouchUpInside];
-        _selectBtn.frame = CGRectMake(0, 0, HX_Width(40), HX_Width(40));
-//        [_selectBtn hx_setEnlargeEdgeWithTop:0 right:0 bottom:HX_Width(40) left:HX_Width(40)];
-        _selectBtn.layer.cornerRadius = HX_Width(20);
+        
+//        [_selectBtn hx_setEnlargeEdgeWithTop:0 right:0 bottom:20 left:20];
     }
+  
+   // _selectBtn.backgroundColor = UIColor.redColor;//sunwf-d
     return _selectBtn;
 }
 - (UICollectionView *)collectionView {

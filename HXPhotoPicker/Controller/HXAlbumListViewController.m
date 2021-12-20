@@ -223,7 +223,15 @@ UITableViewDelegate
     if (self.manager.configuration.navigationBar) {
         self.manager.configuration.navigationBar(self.navigationController.navigationBar, self);
     }
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[[UIImage hx_imageNamed:@"hx_nav_back"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:UIBarButtonItemStylePlain target:self action: @selector(backClick)];
+    self.navigationItem.leftBarButtonItem = leftItem;
+    self.navigationItem.rightBarButtonItem = nil;//sunwf
 }
+
+-(void)backClick{
+    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+}
+
 - (void)changeColor {
     UIColor *backgroudColor;
     UIColor *themeColor;

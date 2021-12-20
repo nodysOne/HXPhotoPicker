@@ -586,7 +586,6 @@
 }
 - (void)getPhotoListWithAlbumModel:(HXAlbumModel *)albumModel
                           complete:(getPhotoListBlock)complete {
-    
     if (self.selectedList.count) {
         self.selectedAssetList = [NSMutableArray arrayWithCapacity:self.selectedList.count];
         self.tempSelectedModelList = [NSMutableArray arrayWithCapacity:self.selectedList.count];
@@ -819,7 +818,12 @@
     }
     if ([self beforeSelectCountIsMaximum]) {
         // 已经达到最大选择数 [NSString stringWithFormat:@"最多只能选择%ld个",manager.maxNum]
-        return [NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"最多只能选择%ld个"],self.configuration.maxNum];
+        if (self.type == HXPhotoManagerSelectedTypePhoto) {
+            return [NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"最多只能选择%ld张图片噢"],self.configuration.maxNum];
+        }else {
+            return [NSString stringWithFormat:[NSBundle hx_localizedStringForKey:@"最多只能选择%ld个"],self.configuration.maxNum];
+
+        }
     }
     if (self.type == HXPhotoManagerSelectedTypePhotoAndVideo) {
         if (model.subType == HXPhotoModelMediaSubTypePhoto) {

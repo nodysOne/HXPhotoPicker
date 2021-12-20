@@ -115,7 +115,7 @@
 
 - (void)setCurrentIndex:(NSInteger)currentIndex {
     if (_currentIndex == currentIndex) {
-        return;
+        //return; sunwf
     }
     if (currentIndex < 0 || currentIndex > self.modelArray.count - 1) {
         return;

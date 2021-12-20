@@ -7,7 +7,8 @@
 //
 
 #import "UIView+HXExtension.h"
-#import "HXPhotoPicker.h" 
+#import "HXPhotoPicker.h"
+#import "UIView+Toast.h"
 
 @implementation UIView (HXExtension)
 - (void)setHx_x:(CGFloat)hx_x
@@ -156,27 +157,41 @@
 }
 
 - (void)hx_showImageHUDText:(NSString *)text {
-    CGFloat hudW = [UILabel hx_getTextWidthWithText:text height:15 fontSize:14];
-    if (hudW > self.frame.size.width - 60) {
-        hudW = self.frame.size.width - 60;
-    }
-    
-    CGFloat hudH = [UILabel hx_getTextHeightWithText:text width:hudW fontSize:14];
-    if (hudW < 100) {
-        hudW = 100;
-    }
-    HXHUD *hud = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, hudW + 20, 110 + hudH - 15) imageName:@"hx_alert_failed" text:text];
-    hud.alpha = 0;
-    [self addSubview:hud];
-    hud.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
-    hud.transform = CGAffineTransformMakeScale(0.4, 0.4);
-    [UIView animateWithDuration:0.25 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:1.0 options:0 animations:^{
-        hud.alpha = 1;
-        hud.transform = CGAffineTransformIdentity;
-    } completion:nil];
-    [UIView cancelPreviousPerformRequestsWithTarget:self];
-    [self performSelector:@selector(hx_handleGraceTimer) withObject:nil afterDelay:1.75f inModes:@[NSRunLoopCommonModes]];
+   
+    [self hx_showToast:text];
+    return;
+//    CGFloat hudW = [UILabel hx_getTextWidthWithText:text height:15 fontSize:14];
+//    if (hudW > self.frame.size.width - 60) {
+//        hudW = self.frame.size.width - 60;
+//    }
+//
+//    CGFloat hudH = [UILabel hx_getTextHeightWithText:text width:hudW fontSize:14];
+//    if (hudW < 100) {
+//        hudW = 100;
+//    }
+//    HXHUD *hud = [[HXHUD alloc] initWithFrame:CGRectMake(0, 0, hudW + 20, 110 + hudH - 15) imageName:@"hx_alert_failed" text:text];
+//    hud.alpha = 0;
+//    [self addSubview:hud];
+//    hud.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
+//    hud.transform = CGAffineTransformMakeScale(0.4, 0.4);
+//    [UIView animateWithDuration:0.25 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:1.0 options:0 animations:^{
+//        hud.alpha = 1;
+//        hud.transform = CGAffineTransformIdentity;
+//    } completion:nil];
+//    [UIView cancelPreviousPerformRequestsWithTarget:self];
+//    [self performSelector:@selector(hx_handleGraceTimer) withObject:nil afterDelay:1.75f inModes:@[NSRunLoopCommonModes]];
 } 
+
+- (void)hx_showToast:(NSString *)message {
+    
+    CSToastStyle *style = [[CSToastStyle alloc] initWithDefaultStyle];
+    style.backgroundColor = [UIColor hx_colorWithHexStr:@"#181818" alpha:0.8];
+    style.cornerRadius = HX_Width(4);
+    style.verticalPadding = HX_Width(18);
+    style.horizontalPadding = HX_Width(22);
+    style.messageFont = [UIFont hx_regularPingFangOfSize:HX_FontSize(32)];
+    [self makeToast:message duration:2.0 position:CSToastPositionCenter style:style];
+}
 
 - (void)hx_immediatelyShowLoadingHudWithText:(NSString *)text {
     [self hx_showLoadingHudWithText:text delay:0 immediately:YES];
