@@ -52,6 +52,12 @@
                                        currentIndex:(NSUInteger)currentIndex
                                           photoView:(HXPhotoView * _Nullable)photoView;
 
+- (void)whx_presentPreviewPhotoControllerWithManager:(HXPhotoManager *_Nullable)manager
+                                       previewStyle:(HXPhotoViewPreViewShowStyle)previewStyle
+                                       currentIndex:(NSUInteger)currentIndex
+                                          photoView:(HXPhotoView * _Nullable)photoView
+                                           hiddenRightBtn:(NSString * _Nullable)ishidden;
+
 - (void)hx_presentPreviewPhotoControllerWithManager:(HXPhotoManager * _Nullable)manager
                                        previewStyle:(HXPhotoViewPreViewShowStyle)previewStyle
                               showBottomPageControl:(BOOL)showBottomPageControl

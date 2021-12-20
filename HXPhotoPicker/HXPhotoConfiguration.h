@@ -190,6 +190,8 @@ HXPhotoPreviewViewController;
 /// yes -> use HXPhotoView preview
 /// no  -> use HXPhotoViewController preview
 @property (copy, nonatomic) void (^ previewRespondsToLongPress)(UILongPressGestureRecognizer *longPress, HXPhotoModel *photoModel, HXPhotoManager *manager, HXPhotoPreviewViewController *previewViewController);
+/// 更多图片
+@property (copy, nonatomic) void (^ previewRespondsToMore)(UIButton *moreBtn, HXPhotoModel *photoModel, HXPhotoManager *manager, HXPhotoPreviewViewController *previewViewController);
 
 /// 语言类型
 @property (assign, nonatomic) HXPhotoLanguageType languageType;

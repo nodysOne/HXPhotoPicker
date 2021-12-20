@@ -24,7 +24,8 @@
 #import "UIImageView+HXExtension.h"
 #import "UIColor+HXExtension.h"
 
-#define HXDARKVIEWWIDTH 30
+#define HXDARKVIEWWIDTH 64
+#define HXMOREBTNWIDTH 64
 
 @interface HXPhotoPreviewViewController ()
 <
@@ -55,6 +56,7 @@ HX_PhotoEditViewControllerDelegate
 @property (strong, nonatomic) UIPageControl *bottomPageControl;
 @property (strong, nonatomic) UIView *darkCancelView;
 @property (strong, nonatomic) UIView *darkDeleteView;
+@property (strong, nonatomic) UIButton *moreBtn;
 @property (strong, nonatomic) UIButton *darkCancelBtn;
 @property (strong, nonatomic) UIButton *darkDeleteBtn;
 @property (assign, nonatomic) BOOL statusBarShouldBeHidden;
@@ -298,6 +300,17 @@ HX_PhotoEditViewControllerDelegate
         cell.previewContentView.imageView.image = image;
     }
 }
+
+- (void)moreClick:(UIButton *)sender {
+    
+    if (self.manager.configuration.previewRespondsToMore) {
+        HXPhotoModel *model;
+        if (self.modelArray.count) model = self.modelArray[self.currentModelIndex];
+        self.manager.configuration.previewRespondsToMore(sender, model, self.manager, self);
+    }
+    
+}
+
 #pragma mark - < private >
 - (void)setExteriorPreviewStyle:(HXPhotoViewPreViewShowStyle)exteriorPreviewStyle {
     _exteriorPreviewStyle = exteriorPreviewStyle;
@@ -399,7 +412,7 @@ HX_PhotoEditViewControllerDelegate
                 self.darkDeleteView.frame = CGRectMake(self.view.hx_w - HXDARKVIEWWIDTH - 15, topMargin, HXDARKVIEWWIDTH, HXDARKVIEWWIDTH);
             }
             self.darkCancelView.frame = CGRectMake(0, topMargin, HXDARKVIEWWIDTH, HXDARKVIEWWIDTH);
-            //self.moreBtn.frame = CGRectMake(self.view.frame.size.width-HXMOREBTNWIDTH, topMargin, HXMOREBTNWIDTH, HXMOREBTNWIDTH);//sunwf-n
+            self.moreBtn.frame = CGRectMake(self.view.frame.size.width-HXMOREBTNWIDTH, topMargin, HXMOREBTNWIDTH, HXMOREBTNWIDTH);//sunwf-n
             
             CGFloat pageControlY = HX_IS_IPhoneX_All ? self.view.hx_h - 40 : self.view.hx_h - 30;
             self.bottomPageControl.frame = CGRectMake(0, pageControlY, self.view.hx_w, 10);
@@ -608,9 +621,9 @@ HX_PhotoEditViewControllerDelegate
             self.darkDeleteView.hidden = NO;
             [self.view addSubview:self.darkCancelView];
             
-//            if (![self.ishidden isEqualToString:@"hidden"]){
-//                [self.view addSubview:self.moreBtn];
-//            } //sunwf
+            if (![self.ishidden isEqualToString:@"hidden"]){
+                [self.view addSubview:self.moreBtn];
+            } //sunwf
             
             if (self.previewShowDeleteButton) {
                 [self.view addSubview:self.darkDeleteView];
@@ -665,12 +678,12 @@ HX_PhotoEditViewControllerDelegate
         anim.values = @[@(1.2),@(0.8),@(1.1),@(0.9),@(1.0)];
         [button.layer addAnimation:anim forKey:@""];
     }
-    CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
-    if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
-        self.selectBtn.hx_w = selectTextWidth + 10;
-    }else {
-        self.selectBtn.hx_w = 24;
-    }
+//    CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
+//    if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
+//        self.selectBtn.hx_w = selectTextWidth + 10;
+//    }else {
+//        self.selectBtn.hx_w = 24;
+//    } //sunwf
     UIColor *btnBgColor = self.manager.configuration.previewSelectedBtnBgColor ?: self.manager.configuration.themeColor;
     if ([HXPhotoCommon photoCommon].isDark) {
         btnBgColor = self.manager.configuration.previewDarkSelectBgColor;
@@ -850,6 +863,7 @@ HX_PhotoEditViewControllerDelegate
     if (self.exteriorPreviewStyle == HXPhotoViewPreViewShowStyleDark) {
         self.darkDeleteView.alpha = alpha;
         self.darkCancelView.alpha = alpha;
+        self.moreBtn.alpha = alpha;
         self.bottomPageControl.alpha = alpha;
     }
 }
@@ -963,6 +977,7 @@ HX_PhotoEditViewControllerDelegate
                 cell.bottomSliderView.hidden = hidden;
             }
             self.darkCancelView.hidden = hidden;
+            self.moreBtn.hidden = hidden;
             self.darkDeleteView.hidden = hidden;
         }
         [UIView animateWithDuration:0.25 animations:^{
@@ -976,11 +991,14 @@ HX_PhotoEditViewControllerDelegate
                 cell.bottomSliderView.hidden = hidden;
             }
             self.darkCancelView.hidden = hidden;
+            self.moreBtn.hidden = hidden;
             self.darkDeleteView.hidden = hidden;
         }];
     }else {
         self.darkCancelView.alpha = !hidden;
+        self.moreBtn.alpha = !hidden;
         self.darkCancelView.hidden = hidden;
+        self.moreBtn.hidden = hidden;
         self.darkDeleteView.alpha = !hidden;
         self.darkDeleteView.hidden = hidden;
         if (cell.previewContentView.videoView.playBtnDidPlay) {
@@ -1036,12 +1054,12 @@ HX_PhotoEditViewControllerDelegate
         }
         self.selectBtn.selected = model.selected;
         [self.selectBtn setTitle:model.selectIndexStr forState:UIControlStateSelected];
-        CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
-        if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
-            self.selectBtn.hx_w = selectTextWidth + 10;
-        }else {
-            self.selectBtn.hx_w = 24;
-        }
+//        CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
+//        if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
+//            self.selectBtn.hx_w = selectTextWidth + 10;
+//        }else {
+//            self.selectBtn.hx_w = 24;
+//        } //sunwf
         
         UIColor *themeColor = [HXPhotoCommon photoCommon].isDark ? self.manager.configuration.previewDarkSelectBgColor : self.manager.configuration.previewSelectedBtnBgColor;
         self.selectBtn.backgroundColor = self.selectBtn.selected ? themeColor : nil;
@@ -1111,6 +1129,12 @@ HX_PhotoEditViewControllerDelegate
         if (self.darkCancelView.alpha < 1) {
             self.darkCancelView.alpha = scale;
         }
+        
+        self.moreBtn.hidden = NO;
+        if (self.moreBtn.alpha < 1) {
+            self.moreBtn.alpha = scale;
+        }
+        
         if (nextModel.subType == HXPhotoModelMediaSubTypeVideo) {
             HXPhotoPreviewVideoViewCell *nextCell = (HXPhotoPreviewVideoViewCell *)[self.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:[self.modelArray indexOfObject:nextModel] inSection:0]];
             if (!nextCell.bottomSliderView.hidden || nextCell.bottomSliderView.alpha < 1) {
@@ -1402,12 +1426,12 @@ HX_PhotoEditViewControllerDelegate
                 [self.manager beforeSelectedListAddPhotoModel:photoModel];
                 self.selectBtn.selected = YES;
                 [self.selectBtn setTitle:photoModel.selectIndexStr forState:UIControlStateSelected];
-                CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
-                if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
-                    self.selectBtn.hx_w = selectTextWidth + 10;
-                }else {
-                    self.selectBtn.hx_w = 24;
-                }
+//                CGFloat selectTextWidth = [self.selectBtn.titleLabel hx_getTextWidth];
+//                if (selectTextWidth + 10 > 24 && self.selectBtn.selected) {
+//                    self.selectBtn.hx_w = selectTextWidth + 10;
+//                }else {
+//                    self.selectBtn.hx_w = 24;
+//                } //sunwf
                 UIColor *btnBgColor = self.manager.configuration.previewSelectedBtnBgColor ?: self.manager.configuration.themeColor;
                 UIColor *themeColor = [HXPhotoCommon photoCommon].isDark ? [UIColor whiteColor] : btnBgColor;
                 self.selectBtn.backgroundColor = themeColor;
@@ -1559,6 +1583,17 @@ HX_PhotoEditViewControllerDelegate
     }
     return _darkCancelBtn;
 }
+
+- (UIButton *)moreBtn {
+    if (!_moreBtn) {
+        _moreBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_moreBtn setImage:[UIImage imageNamed:@"icon图片列表"] forState:UIControlStateNormal];
+        [_moreBtn addTarget:self action:@selector(moreClick:) forControlEvents:UIControlEventTouchUpInside];
+        _moreBtn.frame = CGRectMake(0, 0, HXMOREBTNWIDTH, HXMOREBTNWIDTH);
+    }
+    return _moreBtn;
+}
+
 - (UIButton *)darkDeleteBtn {
     if (!_darkDeleteBtn) {
         _darkDeleteBtn = [UIButton buttonWithType:UIButtonTypeCustom];
