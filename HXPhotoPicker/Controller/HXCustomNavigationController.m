@@ -8,11 +8,12 @@
 
 #import "HXCustomNavigationController.h"
 #import "HXAlbumListViewController.h"
+#import "HXAlbumCollectionViewController.h"
 #import "HXPhotoViewController.h"
 #import "HXPhotoTools.h"
 #import "HXAssetManager.h"
 
-@interface HXCustomNavigationController ()<HXAlbumListViewControllerDelegate, HXPhotoViewControllerDelegate>
+@interface HXCustomNavigationController ()<HXAlbumListViewControllerDelegate, HXPhotoViewControllerDelegate,HXAlbumCollectionViewControllerDelegate>
 @property (assign, nonatomic) BOOL didPresentImagePicker;
 @property (assign, nonatomic) BOOL initialAuthorization;
 @property (strong, nonatomic) NSTimer *timer;
@@ -41,7 +42,8 @@
     manager.selectPhotoing = YES;
     
     if (manager.configuration.albumShowMode == HXPhotoAlbumShowModeDefault) {
-        HXAlbumListViewController *vc = [[HXAlbumListViewController alloc] initWithManager:manager];
+//        HXAlbumListViewController *vc = [[HXAlbumListViewController alloc] initWithManager:manager]; //sunwf
+        HXAlbumCollectionViewController *vc = [[HXAlbumCollectionViewController alloc] initWithManager:manager];
         self = [super initWithRootViewController:vc];
         self.modalPresentationStyle = UIModalPresentationOverFullScreen;
         self.modalPresentationCapturesStatusBarAppearance = YES;
@@ -262,6 +264,33 @@
         [self.hx_delegate photoNavigationViewController:self didDoneWithResult:result];
     }
 }
+
+#pragma mark - < HXAlbumCollectionViewControllerDelegate >
+
+- (void)albumCollectionViewControllerCancelDismissCompletion:(HXAlbumCollectionViewController *)albumCollectionViewController {
+    
+    if ([self.hx_delegate respondsToSelector:@selector(photoNavigationViewControllerCancelDismissCompletion:)]) {
+        [self.hx_delegate photoNavigationViewControllerCancelDismissCompletion:self];
+    }
+}
+
+- (void)albumCollectionViewControllerDidCancel:(HXAlbumCollectionViewController *)albumCollectionViewController {
+    [self clearAssetCacheWithAddOnWindow:!self.manager.selectPhotoCancelDismissAnimated];
+    if ([self.hx_delegate respondsToSelector:@selector(photoNavigationViewControllerDidCancel:)]) {
+        [self.hx_delegate photoNavigationViewControllerDidCancel:self];
+    }
+}
+
+- (void)albumCollectionViewController:(HXAlbumCollectionViewController *)albumCollectionViewController didDoneAllList:(NSArray<HXPhotoModel *> *)allList photos:(NSArray<HXPhotoModel *> *)photoList videos:(NSArray<HXPhotoModel *> *)videoList original:(BOOL)original {
+    
+    if (!self.manager.configuration.requestImageAfterFinishingSelection) {
+        [self clearAssetCacheWithAddOnWindow:!self.manager.selectPhotoFinishDismissAnimated];
+    }
+    if ([self.hx_delegate respondsToSelector:@selector(photoNavigationViewController:didDoneAllList:photos:videos:original:)]) {
+        [self.hx_delegate photoNavigationViewController:self didDoneAllList:allList photos:photoList videos:videoList original:original];
+    }
+}
+
 #pragma mark - < HXPhotoViewControllerDelegate >
 - (void)photoViewControllerFinishDismissCompletion:(HXPhotoViewController *)photoViewController {
     if ([self.hx_delegate respondsToSelector:@selector(photoNavigationViewControllerFinishDismissCompletion:)]) {

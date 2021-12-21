@@ -11,6 +11,7 @@
 		438A0ED618CD3AF385950318 /* libPods-HXPhotoPickerExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E6254BB2C20603515D5A76A4 /* libPods-HXPhotoPickerExample.a */; };
 		5361AF712769DAB9002BA078 /* HXBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5361AF6F2769DAB9002BA078 /* HXBaseViewController.m */; };
 		5361AF742769DBD2002BA078 /* HXPhotoPreviewBottomCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5361AF732769DBD1002BA078 /* HXPhotoPreviewBottomCollectionView.m */; };
+		5361B1D1277198C6002BA078 /* HXAlbumCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5361B1D0277198C6002BA078 /* HXAlbumCollectionViewController.m */; };
 		7B08595324FA58DE00E93091 /* WxMomentPublishViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7B08590D24FA58DE00E93091 /* WxMomentPublishViewController.xib */; };
 		7B08595424FA58DE00E93091 /* YYWeakProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B08590E24FA58DE00E93091 /* YYWeakProxy.m */; };
 		7B08595524FA58DF00E93091 /* Demo15ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B08591024FA58DE00E93091 /* Demo15ViewController.m */; };
@@ -426,6 +427,8 @@
 		5361AF702769DAB9002BA078 /* HXBaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HXBaseViewController.h; sourceTree = "<group>"; };
 		5361AF722769DBD1002BA078 /* HXPhotoPreviewBottomCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HXPhotoPreviewBottomCollectionView.h; sourceTree = "<group>"; };
 		5361AF732769DBD1002BA078 /* HXPhotoPreviewBottomCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HXPhotoPreviewBottomCollectionView.m; sourceTree = "<group>"; };
+		5361B1CF277198C6002BA078 /* HXAlbumCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HXAlbumCollectionViewController.h; sourceTree = "<group>"; };
+		5361B1D0277198C6002BA078 /* HXAlbumCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HXAlbumCollectionViewController.m; sourceTree = "<group>"; };
 		7B08590C24FA58DE00E93091 /* WxMomentPublishViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WxMomentPublishViewController.h; sourceTree = "<group>"; };
 		7B08590D24FA58DE00E93091 /* WxMomentPublishViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WxMomentPublishViewController.xib; sourceTree = "<group>"; };
 		7B08590E24FA58DE00E93091 /* YYWeakProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YYWeakProxy.m; sourceTree = "<group>"; };
@@ -1166,6 +1169,8 @@
 		7B4E65DC2487AD5B00077EE1 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				5361B1CF277198C6002BA078 /* HXAlbumCollectionViewController.h */,
+				5361B1D0277198C6002BA078 /* HXAlbumCollectionViewController.m */,
 				7B4E65EB2487AD5B00077EE1 /* HXAlbumListViewController.h */,
 				7B4E65E12487AD5B00077EE1 /* HXAlbumListViewController.m */,
 				7B4E65DE2487AD5B00077EE1 /* HXCustomCameraController.h */,
@@ -1859,6 +1864,7 @@
 				7B08596424FA58DF00E93091 /* Demo14ViewController.m in Sources */,
 				7B4D4C6124B858C600B03846 /* HXPhotoEditDrawView.m in Sources */,
 				7B4E664A2487AD5C00077EE1 /* HXPhotoModel.m in Sources */,
+				5361B1D1277198C6002BA078 /* HXAlbumCollectionViewController.m in Sources */,
 				7B4E66442487AD5C00077EE1 /* HXPhotoPreviewViewController.m in Sources */,
 				7B4D4C5E24B858C600B03846 /* HXPhotoEditChartletListView.m in Sources */,
 				7B4E66492487AD5C00077EE1 /* HXVideoEditViewController.m in Sources */,
