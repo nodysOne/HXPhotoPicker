@@ -231,13 +231,19 @@
 //    [cancelItem setTitleTextAttributes:@{ NSForegroundColorAttributeName: self.manager.configuration.themeColor, NSFontAttributeName: [UIFont hx_regularPingFangOfSize:14] } forState:UIControlStateNormal];
 //    self.navigationItem.rightBarButtonItem = cancelItem;
     
-    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"back"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:UIBarButtonItemStylePlain target:self action: @selector(cancelClick)];
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[[UIImage hx_imageNamed:@"hx_nav_back"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] style:UIBarButtonItemStylePlain target:self action: @selector(backClick)];
     self.navigationItem.leftBarButtonItem = leftItem;
+    self.navigationItem.rightBarButtonItem = nil;//sunwf
     
     if (self.manager.configuration.navigationBar) {
         self.manager.configuration.navigationBar(self.navigationController.navigationBar, self);
     }
 }
+
+-(void)backClick{
+    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+}
+
 
 - (void)changeColor {
     UIColor *backgroudColor;

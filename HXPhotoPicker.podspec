@@ -17,6 +17,7 @@ Pod::Spec.new do |s|
   s.default_subspec = 'Default'
   s.dependency  'Toast'
   s.dependency  'LUI'
+  s.dependency  'SDWebImage'
 
   s.subspec 'Default' do |de|
     de.source_files = "HXPhotoPicker/**/*.{h,m}"
