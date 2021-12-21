@@ -2515,6 +2515,7 @@ HX_PhotoEditViewControllerDelegate
 @interface HXPhotoLimitViewCell()
 @property (strong, nonatomic) CAShapeLayer *lineLayer;
 @property (strong, nonatomic) UILabel *textLb;
+@property (strong, nonatomic) UIImageView *moreIcon;
 @end
 
 @implementation HXPhotoLimitViewCell
@@ -2527,22 +2528,33 @@ HX_PhotoEditViewControllerDelegate
         _lineLayer.fillColor = [UIColor clearColor].CGColor;
         _lineLayer.contentsScale = [UIScreen mainScreen].scale;
     }
+    _lineLayer.hidden = YES;
     return _lineLayer;
 }
 - (UILabel *)textLb {
     if (!_textLb) {
         _textLb = [[UILabel alloc] init];
-        _textLb.text = [NSBundle hx_localizedStringForKey:@"更多"];
+        _textLb.text = [NSBundle hx_localizedStringForKey:@"添加更多"];
         _textLb.textAlignment = NSTextAlignmentCenter;
         _textLb.adjustsFontSizeToFitWidth = YES;
     }
     return _textLb;
 }
+
+- (UIImageView *)moreIcon {
+    if (!_moreIcon) {
+        _moreIcon = [[UIImageView alloc]init];
+        _moreIcon.image = [UIImage hx_imageNamed:@"hx_add_more_icon"];
+    }
+    return _moreIcon;
+}
+    
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
         [self.contentView.layer addSublayer:self.lineLayer];
         [self.contentView addSubview:self.textLb];
+        [self.contentView addSubview:self.moreIcon];
     }
     return self;
 }
@@ -2550,29 +2562,29 @@ HX_PhotoEditViewControllerDelegate
 - (void)config {
     self.backgroundColor = [HXPhotoCommon photoCommon].isDark ? self.bgDarkColor : self.bgColor;
     self.lineLayer.strokeColor = [HXPhotoCommon photoCommon].isDark ? self.lineDarkColor.CGColor : self.lineColor.CGColor;
-    self.textLb.textColor = [HXPhotoCommon photoCommon].isDark ? self.textDarkColor : self.textColor;
-    self.textLb.font = self.textFont;
+    self.textLb.textColor = [HXPhotoCommon photoCommon].isDark ? self.textDarkColor : [UIColor hx_colorWithHexStr:@"#A8ABB3"];
+    self.textLb.font = [UIFont fontWithName:@"PingFang-SC-Regular" size:12];
 }
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.lineLayer.frame = self.bounds;
-    CGFloat centerX = self.hx_w * 0.5;
-    CGFloat centerY = (self.hx_h - 20) * 0.5;
-    CGFloat margin = 12.5;
-    self.textLb.hx_x = 0;
-    self.textLb.hx_y = centerY + 23;
-    self.textLb.hx_w = self.hx_w;
-    self.textLb.hx_h = [self.textLb hx_getTextHeight];
+//    CGFloat centerX = self.hx_w * 0.5;
+//    CGFloat centerY = (self.hx_h - 20) * 0.5;
+//    CGFloat margin = 12.5;
+    self.textLb.frame = CGRectMake(0, self.hx_centerY+7 , self.hx_w, [self.textLb hx_getTextHeight]);
+    self.moreIcon.frame = CGRectMake(0, 0, 32, 32);
+    self.moreIcon.hx_centerX = self.hx_centerX;
+    self.moreIcon.hx_y = self.hx_centerY - 30;
     
-    UIBezierPath *path = [UIBezierPath bezierPath];
-    
-    [path moveToPoint:CGPointMake(centerX - margin, centerY)];
-    [path addLineToPoint:CGPointMake(centerX + margin, centerY)];
-    
-    [path moveToPoint:CGPointMake(centerX, centerY - margin)];
-    [path addLineToPoint:CGPointMake(centerX, centerY + margin)];
-    
-    self.lineLayer.path = path.CGPath;
+//    UIBezierPath *path = [UIBezierPath bezierPath];
+//
+//    [path moveToPoint:CGPointMake(centerX - margin, centerY)];
+//    [path addLineToPoint:CGPointMake(centerX + margin, centerY)];
+//
+//    [path moveToPoint:CGPointMake(centerX, centerY - margin)];
+//    [path addLineToPoint:CGPointMake(centerX, centerY + margin)];
+//
+//    self.lineLayer.path = path.CGPath;
 }
     
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
@@ -3572,13 +3584,13 @@ button.selected = !button.selected;
 [super layoutSubviews];
 
 self.bgView.frame = self.bounds;
-self.previewBtn.frame = CGRectMake(HX_Width(50), HX_Height(50), 0, HX_Height(50));
+self.previewBtn.frame = CGRectMake((16), HX_Height(50), 0, HX_Height(50));
 self.previewBtn.hx_w = self.previewBtn.titleLabel.hx_getTextWidth;
 
 self.editBtn.frame = CGRectMake(CGRectGetMaxX(self.previewBtn.frame) + 10, 0, 0, 50);
 self.editBtn.hx_w = self.editBtn.titleLabel.hx_getTextWidth;
 
-self.doneBtn.frame = CGRectMake(HX_ScreenWidth-HX_Width(50)-HX_Width(290), HX_Height(30), HX_Width(290), HX_Height(90));
+self.doneBtn.frame = CGRectMake(HX_ScreenWidth-(16)-HX_Width(290), HX_Height(30), HX_Width(290), HX_Height(90));
 [self changeDoneBtnFrame];
 
 [self updateOriginalBtnFrame];

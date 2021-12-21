@@ -270,7 +270,7 @@
     [super layoutSubviews];
     self.bgView.frame = self.bounds;
  
-    self.doneBtn.frame = CGRectMake(HX_ScreenWidth-HX_Width(290)-HX_Width(50), HX_Height(30), HX_Width(290), HX_Height(90));
+    self.doneBtn.frame = CGRectMake(HX_ScreenWidth-HX_Width(290)- 16, HX_Height(30), HX_Width(290), HX_Height(90));
     
     
     [self changeDoneBtnFrame];
