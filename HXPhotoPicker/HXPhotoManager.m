@@ -713,6 +713,9 @@
         }
     }
     if ([HXPhotoTools authorizationStatusIsLimited]) {
+        if (!self.configuration.openCamera) {
+            previewArray = allArray.mutableCopy;
+        }
         HXPhotoModel *model = [[HXPhotoModel alloc] init];
         model.type = HXPhotoModelMediaTypeLimit;
         if (!self.configuration.reverseDate) {

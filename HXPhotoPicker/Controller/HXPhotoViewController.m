@@ -1278,6 +1278,7 @@ HX_PhotoEditViewControllerDelegate
         cell.textFont = self.manager.configuration.photoListLimitCellTextFont;
         cell.bgColor = self.manager.configuration.photoListLimitCellBackgroundColor;
         cell.bgDarkColor = self.manager.configuration.photoListLimitCellBackgroundDarkColor;
+        cell.rowCount = self.manager.configuration.rowCount;
         [cell config];
         return cell;
     }else {
@@ -2568,13 +2569,14 @@ HX_PhotoEditViewControllerDelegate
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.lineLayer.frame = self.bounds;
+    [self adjustMoreIconSizeWithRowCount];
 //    CGFloat centerX = self.hx_w * 0.5;
 //    CGFloat centerY = (self.hx_h - 20) * 0.5;
 //    CGFloat margin = 12.5;
-    self.textLb.frame = CGRectMake(0, self.hx_centerY+7 , self.hx_w, [self.textLb hx_getTextHeight]);
-    self.moreIcon.frame = CGRectMake(0, 0, 32, 32);
-    self.moreIcon.hx_centerX = self.hx_centerX;
-    self.moreIcon.hx_y = self.hx_centerY - 30;
+//    self.textLb.frame = CGRectMake(0, self.hx_centerY+7 , self.hx_w, [self.textLb hx_getTextHeight]);
+//    self.moreIcon.frame = CGRectMake(0, 0, 32, 32);
+//    self.moreIcon.hx_centerX = self.hx_centerX;
+//    self.moreIcon.hx_y = self.hx_centerY - 30;
     
 //    UIBezierPath *path = [UIBezierPath bezierPath];
 //
@@ -2585,6 +2587,21 @@ HX_PhotoEditViewControllerDelegate
 //    [path addLineToPoint:CGPointMake(centerX, centerY + margin)];
 //
 //    self.lineLayer.path = path.CGPath;
+}
+
+// 调整6s 等小屏手机一行显示3个时的 更多图标大小
+- (void)adjustMoreIconSizeWithRowCount{
+    if (_rowCount == 3) {
+        self.textLb.frame = CGRectMake(0, self.hx_centerY+10 , self.hx_w, [self.textLb hx_getTextHeight]);
+        self.moreIcon.frame = CGRectMake(0, 0, 45, 45);
+        self.moreIcon.hx_centerX = self.hx_centerX;
+        self.moreIcon.hx_y = self.hx_centerY - 37;
+    }else {
+        self.textLb.frame = CGRectMake(0, self.hx_centerY+7 , self.hx_w, [self.textLb hx_getTextHeight]);
+        self.moreIcon.frame = CGRectMake(0, 0, 32, 32);
+        self.moreIcon.hx_centerX = self.hx_centerX;
+        self.moreIcon.hx_y = self.hx_centerY - 30;
+    }
 }
     
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
